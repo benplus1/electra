@@ -43,6 +43,12 @@ class WordLevelScorer(scorer.Scorer):
   def update(self, results):
     super(WordLevelScorer, self).update(results)
     self._total_loss += results['loss']
+    utils.log(results)
+    utils.log(results['labels'])
+    utils.log("IUEWHR)*@#&GHR)@*#YGRO")
+    utils.log(results['labels_mask'])
+    utils.log(results['predictions'])
+    utils.log(results['labels_mask'])
     n_words = int(round(np.sum(results['labels_mask'])))
     self._labels.append(results['labels'][:n_words])
     self._preds.append(results['predictions'][:n_words])
