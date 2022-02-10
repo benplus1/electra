@@ -183,7 +183,7 @@ class TaggingTask(task.Task):
     return sentences
 
   def get_scorer(self):
-    return tagging_metrics.AccuracyScorer() if self._is_token_level else \
+    return tagging_metrics.F1Scorer() if self._is_token_level else \
       tagging_metrics.EntityLevelF1Scorer(self._get_label_mapping())
 
   def get_feature_specs(self):
@@ -250,4 +250,4 @@ class Chunking(TaggingTask):
   """Text chunking."""
 
   def __init__(self, config, tokenizer):
-    super(Chunking, self).__init__(config, "chunk", tokenizer, False)
+    super(Chunking, self).__init__(config, "chunk", tokenizer, True)
