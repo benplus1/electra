@@ -26,6 +26,7 @@ import numpy as np
 
 from finetune import scorer
 from finetune.tagging import tagging_utils
+from util import utils
 
 
 class WordLevelScorer(scorer.Scorer):
@@ -106,6 +107,8 @@ class EntityLevelF1Scorer(F1Scorer):
   def _get_results(self):
     self._n_correct, self._n_predicted, self._n_gold = 0, 0, 0
     for labels, preds in zip(self._labels, self._preds):
+      utils.log(labels)
+      utils.log(preds)
       sent_spans = set(tagging_utils.get_span_labels(
           labels, self._inv_label_mapping))
       span_preds = set(tagging_utils.get_span_labels(
