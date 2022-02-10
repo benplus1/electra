@@ -47,11 +47,13 @@ class TaggingExample(task.Example):
     self.words = words
     if is_token_level:
       labels = tags
+      utils.log(labels)
     else:
       span_labels = tagging_utils.get_span_labels(tags)
       labels = tagging_utils.get_tags(
           span_labels, len(words), LABEL_ENCODING)
     self.labels = [label_mapping[l] for l in labels]
+    utils.log(labels)
 
 
 class TaggingTask(task.Task):
