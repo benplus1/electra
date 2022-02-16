@@ -112,6 +112,7 @@ def model_fn_builder(config: configure_finetuning.FinetuningConfig, tasks,
           layerwise_lr_decay_power=config.layerwise_lr_decay,
           n_transformer_layers=model.bert_config.num_hidden_layers
       )
+      utils.log("in in in in n here")
       output_spec = tf.estimator.tpu.TPUEstimatorSpec(
           mode=mode,
           loss=model.loss,
@@ -122,6 +123,7 @@ def model_fn_builder(config: configure_finetuning.FinetuningConfig, tasks,
               num_train_steps, config.iterations_per_loop, config.use_tpu, 10)])
     else:
       assert mode == tf.estimator.ModeKeys.PREDICT
+      utils.log("in this estimator")
       output_spec = tf.estimator.tpu.TPUEstimatorSpec(
           mode=mode,
           predictions=utils.flatten_dict(model.outputs),
