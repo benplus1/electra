@@ -213,6 +213,7 @@ class TaggingTask(task.Task):
         loss=losses,
         logits=logits,
         predictions=tf.argmax(logits, axis=-1),
+        probabilities=tf.softmax(logits),
         labels=features[self.name + "_labels"],
         labels_mask=features[self.name + "_labels_mask"],
         eid=features[self.name + "_eid"],
