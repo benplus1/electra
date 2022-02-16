@@ -189,10 +189,13 @@ class ModelRunner(object):
     """Evaluate the current model."""
     utils.log("Evaluating", task.name)
     eval_input_fn, _ = self._preprocessor.prepare_predict([task], split)
-    results = self._estimator.predict(input_fn=eval_input_fn,
+    results = self._estimator.predict(input_fn=eval_input_fn, predict_keys="probabilities",
                                       yield_single_examples=True)
     scorer = task.get_scorer()
     for r in results:
+      utils.log("______________________________------------------------______________________________")
+      utils.log(r)
+      utils.log("______________________________------------------------______________________________")
       if r["task_id"] != len(self._tasks):  # ignore padding examples
         r = utils.nest_dict(r, self._config.task_names)
         scorer.update(r[task.name])
@@ -207,7 +210,7 @@ class ModelRunner(object):
     """Write classification predictions to disk."""
     utils.log("Writing out predictions for", tasks, split)
     predict_input_fn, _ = self._preprocessor.prepare_predict(tasks, split)
-    results = self._estimator.predict(input_fn=predict_input_fn,
+    results = self._estimator.predict(input_fn=predict_input_fn, predict_keys="probabilities",
                                       yield_single_examples=True)
     # task name -> eid -> model-logits
     logits = collections.defaultdict(dict)
