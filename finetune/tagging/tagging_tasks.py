@@ -209,6 +209,7 @@ class TaggingTask(task.Task):
         logits=logits)
     losses *= features[self.name + "_labels_mask"]
     losses = tf.reduce_sum(losses, axis=-1)
+    utils.log("in this prediction module")
     return losses, dict(
         loss=losses,
         logits=logits,
