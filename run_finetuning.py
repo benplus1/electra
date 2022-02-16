@@ -191,7 +191,7 @@ class ModelRunner(object):
     """Evaluate the current model."""
     utils.log("Evaluating", task.name)
     eval_input_fn, _ = self._preprocessor.prepare_predict([task], split)
-    results = self._estimator.predict(input_fn=eval_input_fn, predict_keys="probabilities",
+    results = self._estimator.predict(input_fn=eval_input_fn,
                                       yield_single_examples=True)
     scorer = task.get_scorer()
     for r in results:
@@ -212,7 +212,7 @@ class ModelRunner(object):
     """Write classification predictions to disk."""
     utils.log("Writing out predictions for", tasks, split)
     predict_input_fn, _ = self._preprocessor.prepare_predict(tasks, split)
-    results = self._estimator.predict(input_fn=predict_input_fn, predict_keys="probabilities",
+    results = self._estimator.predict(input_fn=predict_input_fn,
                                       yield_single_examples=True)
     # task name -> eid -> model-logits
     logits = collections.defaultdict(dict)
