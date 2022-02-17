@@ -182,7 +182,7 @@ class TaggingTask(task.Task):
     return sentences
 
   def get_scorer(self):
-    return tagging_metrics.F1Scorer(self._get_label_mapping()) if self._is_token_level else \
+    return tagging_metrics.F1Scorer() if self._is_token_level else \
       tagging_metrics.F1Scorer(self._get_label_mapping())
 
   def get_feature_specs(self):
