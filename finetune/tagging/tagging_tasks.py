@@ -125,6 +125,8 @@ class TaggingTask(task.Task):
 
   def featurize(self, example: TaggingExample, is_training, log=False):
     words_to_tokens = tokenize_and_align(self._tokenizer, example.words)
+    utils.log("inside featurize")
+    utils.log(words_to_tokens)
     input_ids = []
     tagged_positions = []
     for word_tokens in words_to_tokens:
@@ -149,7 +151,7 @@ class TaggingTask(task.Task):
     assert len(labels) == self.config.max_seq_length
     assert len(labels_mask) == self.config.max_seq_length
 
-    return {
+    output = {
         "input_ids": input_ids,
         "input_mask": input_mask,
         "segment_ids": segment_ids,
@@ -159,6 +161,9 @@ class TaggingTask(task.Task):
         self.name + "_labels_mask": labels_mask,
         self.name + "_labeled_positions": labeled_positions
     }
+
+    utils.log(output)
+    return output
 
   def _get_labeled_sentences(self, split):
     sentences = []
@@ -229,6 +234,8 @@ class TaggingTask(task.Task):
 def tokenize_and_align(tokenizer, words, cased=False):
   """Splits up words into subword-level tokens."""
   words = ["[CLS]"] + list(words) + ["[SEP]"]
+  utils.log("inside tokenize and align")
+  utils.log(words)
   basic_tokenizer = tokenizer.basic_tokenizer
   tokenized_words = []
   for word in words:
@@ -253,4 +260,4 @@ class Chunking(TaggingTask):
   """Text chunking."""
 
   def __init__(self, config, tokenizer):
-    super(Chunking, self).__init__(config, "chunk", tokenizer, True)
+    super(Chunking, self).__init__(config, "chunk", tokenizer, False)
