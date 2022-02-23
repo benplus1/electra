@@ -126,7 +126,6 @@ class TaggingTask(task.Task):
   def featurize(self, example: TaggingExample, is_training, log=False):
     words_to_tokens = tokenize_and_align(self._tokenizer, example.words)
     utils.log("inside featurize")
-    utils.log(words_to_tokens)
     input_ids = []
     tagged_positions = []
     for word_tokens in words_to_tokens:
@@ -188,7 +187,7 @@ class TaggingTask(task.Task):
 
   def get_scorer(self):
     return tagging_metrics.F1Scorer() if self._is_token_level else \
-      tagging_metrics.F1Scorer(self._get_label_mapping())
+      tagging_metrics.EntityLevelF1Scorer(self._get_label_mapping())
 
   def get_feature_specs(self):
     return [
