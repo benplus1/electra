@@ -23,6 +23,7 @@ import abc
 import csv
 import os
 import tensorflow.compat.v1 as tf
+tf.enable_eager_execution()
 
 import configure_finetuning
 from finetune import feature_spec
