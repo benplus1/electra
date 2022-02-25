@@ -43,8 +43,6 @@ class WordLevelScorer(scorer.Scorer):
   def update(self, results):
     super(WordLevelScorer, self).update(results)
     self._total_loss += results['loss']
-    utils.log(results)
-    utils.log("IUEWHR)*@#&GHR)@*#YGRO")
     n_words = int(round(np.sum(results['labels_mask'])))
     self._labels.append(results['labels'][:n_words])
     self._preds.append(results['predictions'][:n_words])
@@ -108,6 +106,7 @@ class EntityLevelF1Scorer(F1Scorer):
 
   def _get_results(self):
     self._n_correct, self._n_predicted, self._n_gold = 0, 0, 0
+    # the chunk_labels is in labels, preds
     for labels, preds in zip(self._labels, self._preds):
       sent_spans = set(tagging_utils.get_span_labels(
           labels, self._inv_label_mapping))
