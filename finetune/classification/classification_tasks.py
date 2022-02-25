@@ -279,7 +279,7 @@ class ClassificationTask(SingleOutputTask):
     labels = tf.one_hot(label_ids, depth=num_labels, dtype=tf.float32)
 
     losses = -tf.reduce_sum(labels * log_probs, axis=-1)
-
+    
     outputs = dict(
         loss=losses,
         logits=logits,
@@ -287,6 +287,8 @@ class ClassificationTask(SingleOutputTask):
         label_ids=label_ids,
         eid=features[self.name + "_eid"],
     )
+    utils.log("IN OUTPUTS IN OUTPUTS IN OUTPUTS IN OUTPUTS IN OUTPUTS IN OUTPUTS IN OUTPUTS IN OUTPUTS ")
+    utils.log(outputs)
     return losses, outputs
 
   def get_scorer(self):
