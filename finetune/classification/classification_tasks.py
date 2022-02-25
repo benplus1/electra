@@ -233,9 +233,8 @@ class ClassificationTask(SingleOutputTask):
   def get_prediction_module(self, bert_model, features, is_training,
                             percent_done):
     num_labels = len(self._label_list)
-
     reprs = bert_model.get_pooled_output() # a list of cls_slices
-
+    utils.log(reprs)
     losses_arr = []
     # logits_arr = []
     predictions_arr = []

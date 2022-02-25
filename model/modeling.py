@@ -265,10 +265,10 @@ class BertModel(object):
             do_return_all_layers=True)
         self.sequence_output = self.all_layer_outputs[-1]
         # new
-        pooled_list = []
-        for i in cls_ids:
-          pooled_list.append(self.sequence_output[:, i])
-        self.pooled_output = pooled_list
+        # pooled_list = []
+        # for i in cls_ids:
+        #   pooled_list.append(self.sequence_output[:, i])
+        self.pooled_output = tf.gather(self.sequence_otput, cls_ids)
 
   def get_pooled_output(self):
     return self.pooled_output
