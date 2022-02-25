@@ -288,6 +288,7 @@ class ClassificationTask(SingleOutputTask):
     robabilities = tf.nn.softmax(logits)
 
     outputs = dict(
+        pool_output=reprs,
         loss=losses,
         logits=logits,
         predictions=redictions,
@@ -296,6 +297,7 @@ class ClassificationTask(SingleOutputTask):
         eid=features[self.name + "_eid"],
     )
     utils.log("IN OUTPUTS IN OUTPUTS IN OUTPUTS IN OUTPUTS IN OUTPUTS IN OUTPUTS IN OUTPUTS IN OUTPUTS ")
+    utils.log(reprs)
     utils.log("losses")
     utils.log(losses)
     utils.log('predictions')
