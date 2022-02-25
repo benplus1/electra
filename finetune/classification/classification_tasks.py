@@ -76,8 +76,8 @@ class SingleOutputTask(task.Task):
       _truncate_seq_pair(tokens_a, tokens_b, self.config.max_seq_length - 3)
     else:
       # Account for [CLS] and [SEP] with "- 2"
-      if len(tokens_a) > self.config.max_seq_length - 2:
-        tokens_a = tokens_a[0:(self.config.max_seq_length - 2)]
+      if len(tokens_a) > self.config.max_seq_length - 3: # change from 2 to 3
+        tokens_a = tokens_a[0:(self.config.max_seq_length - 3)] # change from 2 to 3
 
     # The convention in BERT is:
     # (a) For sequence pairs:
@@ -104,6 +104,10 @@ class SingleOutputTask(task.Task):
     for token in tokens_a:
       tokens.append(token)
       segment_ids.append(0)
+      ############
+    tokens.append("[CLS]")
+    segment_ids.append(0)
+    #########
     tokens.append("[SEP]")
     segment_ids.append(0)
 
@@ -169,7 +173,7 @@ class SingleOutputTask(task.Task):
         if swap:
           text_a, text_b = text_b, text_a
         examples.append(InputExample(eid=eid, task_name=self.name,
-                                     text_a=text_a, text_b=text_b, label=label))
+                                     text_a=text_a, text_b=text_b, label=label)) ########## change to array
       except Exception as ex:
         utils.log("Error constructing example from line", i,
                   "for task", self.name + ":", ex)
