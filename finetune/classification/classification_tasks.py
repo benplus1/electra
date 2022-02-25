@@ -23,7 +23,6 @@ import abc
 import csv
 import os
 import tensorflow.compat.v1 as tf
-tf.enable_eager_execution()
 
 import configure_finetuning
 from finetune import feature_spec
@@ -234,7 +233,14 @@ class ClassificationTask(SingleOutputTask):
   def get_prediction_module(self, bert_model, features, is_training,
                             percent_done):
     num_labels = len(self._label_list)
-    reprs = bert_model.get_pooled_output() # a list of cls_slices
+    reprs = bert_model.get_pooled_output() # a list of all seq_length
+    pooled_list = []
+    tf.enable_eager_execution()
+
+    for i in features['cls_ids']:
+      pooled_list.append(reprs[:, i])
+    reprs = pooled_list
+
     utils.log(reprs)
     losses_arr = []
     # logits_arr = []
