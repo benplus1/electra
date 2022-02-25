@@ -284,15 +284,28 @@ class ClassificationTask(SingleOutputTask):
 
     losses = -tf.reduce_sum(labels * log_probs, axis=-1)
     
+    redictions=tf.argmax(logits, axis=-1)
+    robabilities = tf.nn.softmax(logits)
+
     outputs = dict(
         loss=losses,
         logits=logits,
-        predictions=tf.argmax(logits, axis=-1),
+        predictions=redictions,
+        probabilities=robabilities,
         label_ids=label_ids,
         eid=features[self.name + "_eid"],
     )
     utils.log("IN OUTPUTS IN OUTPUTS IN OUTPUTS IN OUTPUTS IN OUTPUTS IN OUTPUTS IN OUTPUTS IN OUTPUTS ")
-    utils.log(outputs)
+    utils.log("losses")
+    utils.log(losses)
+    utils.log('predictions')
+    utils.log(tf.argmax(logits, axis=-1))
+    utils.log("probabilities")
+    utils.log(robabilities)
+    utils.log("label ids")
+    utils.log(label_ids)
+    utils.log("label list")
+    utils.log(self._label_list)
     return losses, outputs
 
   def get_scorer(self):
