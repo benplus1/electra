@@ -250,7 +250,7 @@ class ClassificationTask(SingleOutputTask):
                tokenizer, label_list):
     super(ClassificationTask, self).__init__(config, name, tokenizer)
     self._tokenizer = tokenizer
-    self._label_list = label_list
+    self._label_list = label_list # always [0, 1]?
 
   def _get_dummy_label(self):
     return self._label_list[0]
@@ -304,8 +304,6 @@ class ClassificationTask(SingleOutputTask):
     utils.log(robabilities)
     utils.log("label ids")
     utils.log(label_ids)
-    utils.log("label list")
-    utils.log(self._label_list)
     return losses, outputs
 
   def get_scorer(self):

@@ -195,9 +195,9 @@ class ModelRunner(object):
                                       yield_single_examples=True)
     scorer = task.get_scorer()
     for r in results:
-      # utils.log("______________________________------------------------______________________________")
-      # utils.log(r)
-      # utils.log("______________________________------------------------______________________________")
+      utils.log("______________________________------------------------______________________________")
+      utils.log(r)
+      utils.log("______________________________------------------------______________________________")
       if r["task_id"] != len(self._tasks):  # ignore padding examples
         r = utils.nest_dict(r, self._config.task_names)
         scorer.update(r[task.name])
@@ -216,6 +216,8 @@ class ModelRunner(object):
                                       yield_single_examples=True)
     # task name -> eid -> model-logits
     logits = collections.defaultdict(dict)
+    utils.log("logging logits")
+    utils.log(logits)
     for r in results:
       if r["task_id"] != len(self._tasks):
         r = utils.nest_dict(r, self._config.task_names)
