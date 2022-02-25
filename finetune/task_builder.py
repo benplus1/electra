@@ -36,22 +36,22 @@ def get_tasks(config: configure_finetuning.FinetuningConfig):
 def get_task(config: configure_finetuning.FinetuningConfig, task_name,
              tokenizer):
   """Get an instance of a task based on its name."""
-  if task_name == "cola":
-    return classification_tasks.CoLA(config, tokenizer)
-  elif task_name == "mrpc":
-    return classification_tasks.MRPC(config, tokenizer)
-  elif task_name == "mnli":
-    return classification_tasks.MNLI(config, tokenizer)
-  elif task_name == "sst":
+  # if task_name == "cola":
+  #   return classification_tasks.CoLA(config, tokenizer)
+  # elif task_name == "mrpc":
+  #   return classification_tasks.MRPC(config, tokenizer)
+  # elif task_name == "mnli":
+  #   return classification_tasks.MNLI(config, tokenizer)
+  if task_name == "sst":
     return classification_tasks.SST(config, tokenizer)
-  elif task_name == "rte":
-    return classification_tasks.RTE(config, tokenizer)
-  elif task_name == "qnli":
-    return classification_tasks.QNLI(config, tokenizer)
-  elif task_name == "qqp":
-    return classification_tasks.QQP(config, tokenizer)
-  elif task_name == "sts":
-    return classification_tasks.STS(config, tokenizer)
+  # elif task_name == "rte":
+  #   return classification_tasks.RTE(config, tokenizer)
+  # elif task_name == "qnli":
+  #   return classification_tasks.QNLI(config, tokenizer)
+  # elif task_name == "qqp":
+  #   return classification_tasks.QQP(config, tokenizer)
+  # elif task_name == "sts":
+  #   return classification_tasks.STS(config, tokenizer)
   elif task_name == "squad":
     return qa_tasks.SQuAD(config, tokenizer)
   elif task_name == "squadv1":

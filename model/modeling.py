@@ -139,7 +139,8 @@ class BertModel(object):
                is_training,
                input_ids,
                input_mask=None,
-               token_type_ids=None,
+               token_type_ids=None, # segment_ids
+               cls_ids=None, # added cls_ids
                use_one_hot_embeddings=True,
                scope=None,
                embedding_size=None,
@@ -263,7 +264,11 @@ class BertModel(object):
             initializer_range=bert_config.initializer_range,
             do_return_all_layers=True)
         self.sequence_output = self.all_layer_outputs[-1]
-        self.pooled_output = self.sequence_output[:, 0]
+        # new
+        pooled_list = []
+        for i in cls_ids:
+          pooled_list.append(self.sequence_output[:, i])
+        self.pooled_output = pooled_list
 
   def get_pooled_output(self):
     return self.pooled_output
