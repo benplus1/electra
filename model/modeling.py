@@ -31,7 +31,6 @@ import numpy as np
 import six
 import tensorflow.compat.v1 as tf
 from tensorflow.contrib import layers as contrib_layers
-tf.enable_eager_execution()
 
 class BertConfig(object):
   """Configuration for `BertModel` (ELECTRA uses the same model as BERT)."""
@@ -169,6 +168,7 @@ class BertModel(object):
       ValueError: The config is invalid or one of the input tensor shapes
         is invalid.
     """
+    tf.enable_eager_execution()
     bert_config = copy.deepcopy(bert_config)
     if not is_training:
       bert_config.hidden_dropout_prob = 0.0
