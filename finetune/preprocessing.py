@@ -162,7 +162,9 @@ class Preprocessor(object):
 
   def _decode_tfrecord(self, record):
     """Decodes a record to a TensorFlow example."""
+    utils.log("HERE")
     example = tf.io.parse_single_example(record, self._name_to_feature_config)
+    utils.log("HERERHERHEHRE")
     # tf.Example only supports tf.int64, but the TPU only supports tf.int32.
     # So cast all int64 to int32.
     for name, tensor in example.items():
@@ -170,4 +172,5 @@ class Preprocessor(object):
         example[name] = tf.cast(tensor, tf.int32)
       else:
         example[name] = tensor
+    utils.log("WEOURYHWEGORU")
     return example
