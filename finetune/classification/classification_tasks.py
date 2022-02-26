@@ -143,7 +143,7 @@ class SingleOutputTask(task.Task):
     assert len(segment_ids) == self.config.max_seq_length
     assert len(cls_ids) == self.config.max_seq_length
 
-    if log:
+    if True:
       utils.log("  Example {:}".format(example.eid))
       utils.log("    tokens: {:}".format(" ".join(
           [tokenization.printable_text(x) for x in tokens])))
