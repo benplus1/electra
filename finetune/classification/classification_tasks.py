@@ -217,7 +217,7 @@ class ClassificationTask(SingleOutputTask):
 
   def get_feature_specs(self):
     return [feature_spec.FeatureSpec(self.name + "_eid", []),
-            feature_spec.FeatureSpec(self.name + "_label_ids", [])]
+            feature_spec.FeatureSpec(self.name + "_label_ids", [self.config.max_seq_length])]
 
   def _add_features(self, features, example, log):
     label_map = {}
