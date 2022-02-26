@@ -55,7 +55,6 @@ class FinetuningModel(object):
         input_ids=features["input_ids"],
         input_mask=features["input_mask"],
         token_type_ids=features["segment_ids"],
-        cls_ids=features["cls_ids"],
         use_one_hot_embeddings=config.use_tpu,
         embedding_size=config.embedding_size)
     percent_done = (tf.cast(tf.train.get_or_create_global_step(), tf.float32) /

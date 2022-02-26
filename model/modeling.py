@@ -139,7 +139,6 @@ class BertModel(object):
                input_ids,
                input_mask=None,
                token_type_ids=None, # segment_ids
-               cls_ids=None, # added cls_ids
                use_one_hot_embeddings=True,
                scope=None,
                embedding_size=None,

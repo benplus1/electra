@@ -31,7 +31,6 @@ def get_shared_feature_specs(config: configure_finetuning.FinetuningConfig):
       FeatureSpec("input_ids", [config.max_seq_length]),
       FeatureSpec("input_mask", [config.max_seq_length]),
       FeatureSpec("segment_ids", [config.max_seq_length]),
-      FeatureSpec("cls_ids", []),
       FeatureSpec("task_id", []),
   ]
 
