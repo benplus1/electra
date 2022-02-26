@@ -269,8 +269,8 @@ class BertModel(object):
         # for i in cls_ids:
         #   pooled_list.append(self.sequence_output[:, i])
         # self.pooled_output = pooled_list
-        self.pooled_output = self.sequence_output
-        # self.pooled_output = self.sequence_output[:,0]
+        # self.pooled_output = self.sequence_output
+        self.pooled_output = self.sequence_output[:,0]
         # self.pooled_output = tf.gather(self.sequence_output, cls_ids)
 
   def get_pooled_output(self):

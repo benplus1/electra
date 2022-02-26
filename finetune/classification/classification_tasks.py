@@ -233,51 +233,75 @@ class ClassificationTask(SingleOutputTask):
   def get_prediction_module(self, bert_model, features, is_training,
                             percent_done):
     num_labels = len(self._label_list)
-    reprs = bert_model.get_pooled_output() # a list of all seq_length
-    pooled_list = []
-    tf.enable_eager_execution()
-
-    for i in features['cls_ids']:
-      pooled_list.append(reprs[:, i])
-    reprs = pooled_list
+    reprs = bert_model.get_sequence_output() # a list of all seq_length
 
     utils.log(reprs)
-    losses_arr = []
-    # logits_arr = []
-    predictions_arr = []
-    probabilities_arr = []
     label_ids =  features[self.name + "_label_ids"]
 
-    for (i, repr) in enumerate(reprs):
-      if is_training:
-        repr = tf.nn.dropout(repr, keep_prob=0.9)
+    if is_training:
+      reprs = tf.nn.dropout(reprs, keep_prob=0.9) # dropout looks at everything, so this is fine
 
-      logits = tf.layers.dense(repr, num_labels)
-      log_probs = tf.nn.log_softmax(logits, axis=-1)
+    reprs = tf.gather(reprs, features['cls_ids'], axis=1)
+    # sequence_output: [batch_size, seq_length, hidden_size]
+    # pooled_output: [batch_size, hidden_size]
+    # layers_dense goes from [batch_size, hidden_size] -> [batch_size, 2] (last dimension becomes 2)
+    # [batch_size, seq_length, hidden_size] -> [batch_size, seq_length, 2]
+    logits = tf.layers.dense(reprs, num_labels) # reprs is supposed to be pooledoutput, but is currently sequenceoutput
+    # same shape as logits -> [batch_size, 2]
+    # [batch_size, seq_length, 2]
+    log_probs = tf.nn.log_softmax(logits, axis=-1)
 
-      label_id = label_ids[i]
-      labels = tf.one_hot(label_id, depth=num_labels, dtype=tf.float32)
+    # usually, label_id is a scalar, which returns an output_shape of vector length depth (2)
+    # now, indices is a vector of length features (num_cls_ids), which retursn features x depth for axis == -1, depth x features for axis == 0
+    # [seq_length, 2] or [2, seq_length]
+    labels = tf.one_hot(label_ids, depth=num_labels, dtype=tf.float32, axis=-1)
 
-      losses = -tf.reduce_sum(labels * log_probs, axis=-1)
-      losses_arr.append(losses)
+    # labels is vector of length 2, log_probs is tensor of shape [batch_size, 2]
+    # losses = -tf.reduce_sum(labels * log_probs, axis=-1) -> [batch_size, ]
+    losses = -tf.reduce_sum(labels * log_probs)
+
+    # logits -> [batch_size, 2] -> [batch_size, ]
+    # logits -> [batch_size, seq_length, 2] -> [batch_size, seq_length]
+    redictions = tf.argmax(logits, axis=-1)
+
+    robabilities = tf.nn.softmax(logits)
+
+    # pooled_list = []
+    # tf.enable_eager_execution()
+
+    # for i in features['cls_ids']:
+    #   pooled_list.append(reprs[:, i])
+    # reprs = pooled_list
+
+    # for (i, repr) in enumerate(reprs):
+    #   if is_training:
+    #     repr = tf.nn.dropout(repr, keep_prob=0.9)
+
+    #   logits = tf.layers.dense(repr, num_labels)
+    #   log_probs = tf.nn.log_softmax(logits, axis=-1)
+
+    #   label_id = label_ids[i]
+    #   labels = tf.one_hot(label_id, depth=num_labels, dtype=tf.float32)
+
+    #   losses = -tf.reduce_sum(labels * log_probs, axis=-1)
+    #   losses_arr.append(losses)
       
-      redictions = tf.argmax(logits, axis=-1)
-      predictions_arr.append(redictions)
+    #   redictions = tf.argmax(logits, axis=-1)
+    #   predictions_arr.append(redictions)
 
-      robabilities = tf.nn.softmax(logits)
-      probabilities_arr.append(robabilities)
+    #   robabilities = tf.nn.softmax(logits)
+    #   probabilities_arr.append(robabilities)
 
-    true_loss = tf.add_n(losses_arr)
     outputs = dict(
-        # pool_output=reprs,
-        # loss=losses,
-        # logits=logits,
+        pool_output=reprs,
+        loss=losses,
+        logits=logits,
         predictions=redictions,
         probabilities=robabilities,
         label_ids=label_ids,
         eid=features[self.name + "_eid"],
     )
-    return true_loss, outputs
+    return losses, outputs
 
   def get_scorer(self):
     return classification_metrics.F1Scorer()
