@@ -241,7 +241,9 @@ class ClassificationTask(SingleOutputTask):
     if is_training:
       reprs = tf.nn.dropout(reprs, keep_prob=0.9) # dropout looks at everything, so this is fine
 
-    reprs = tf.gather(reprs, features['cls_ids'], axis=1)
+    # DO NOT GATHER, PERFORM THE INDEXING ON METRICS
+    # reprs = tf.gather(reprs, features['cls_ids'], axis=1)
+
     # sequence_output: [batch_size, seq_length, hidden_size]
     # pooled_output: [batch_size, hidden_size]
     # layers_dense goes from [batch_size, hidden_size] -> [batch_size, 2] (last dimension becomes 2)
