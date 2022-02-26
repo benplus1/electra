@@ -217,7 +217,8 @@ class ClassificationTask(SingleOutputTask):
 
   def get_feature_specs(self):
     return [feature_spec.FeatureSpec(self.name + "_eid", []),
-            feature_spec.FeatureSpec(self.name + "_label_ids", [self.config.max_seq_length])]
+            feature_spec.FeatureSpec(self.name + "_label_ids", [self.config.max_seq_length]),
+            feature_spec.FeatureSpec(self.name + "_cls_ids", allow_missing = True)]
 
   def _add_features(self, features, example, log):
     label_map = {}
@@ -267,32 +268,6 @@ class ClassificationTask(SingleOutputTask):
     redictions = tf.argmax(logits, axis=-1)
 
     robabilities = tf.nn.softmax(logits)
-
-    # pooled_list = []
-    # tf.enable_eager_execution()
-
-    # for i in features['cls_ids']:
-    #   pooled_list.append(reprs[:, i])
-    # reprs = pooled_list
-
-    # for (i, repr) in enumerate(reprs):
-    #   if is_training:
-    #     repr = tf.nn.dropout(repr, keep_prob=0.9)
-
-    #   logits = tf.layers.dense(repr, num_labels)
-    #   log_probs = tf.nn.log_softmax(logits, axis=-1)
-
-    #   label_id = label_ids[i]
-    #   labels = tf.one_hot(label_id, depth=num_labels, dtype=tf.float32)
-
-    #   losses = -tf.reduce_sum(labels * log_probs, axis=-1)
-    #   losses_arr.append(losses)
-      
-    #   redictions = tf.argmax(logits, axis=-1)
-    #   predictions_arr.append(redictions)
-
-    #   robabilities = tf.nn.softmax(logits)
-    #   probabilities_arr.append(robabilities)
 
     outputs = dict(
         pool_output=reprs,

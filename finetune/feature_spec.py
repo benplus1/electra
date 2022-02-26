@@ -38,15 +38,20 @@ def get_shared_feature_specs(config: configure_finetuning.FinetuningConfig):
 class FeatureSpec(object):
   """Defines a feature passed as input to the model."""
 
-  def __init__(self, name, shape, default_value_fn=None, is_int_feature=True):
+  def __init__(self, name, shape, default_value_fn=None, is_int_feature=True, allow_missing=False):
     self.name = name
     self.shape = shape
     self.default_value_fn = default_value_fn
     self.is_int_feature = is_int_feature
+    self.allow_missing = allow_missing
 
+  # modify to get allow_missing
   def get_parsing_spec(self):
-    return tf.io.FixedLenFeature(
-        self.shape, tf.int64 if self.is_int_feature else tf.float32)
+    if self.allow_missing:
+      return tf.io.VarLenFeature(tf.int64 if self.is_int_feature else tf.float32)
+    else:
+      return tf.io.FixedLenFeature(
+          self.shape, tf.int64 if self.is_int_feature else tf.float32)
 
   def get_default_values(self):
     if self.default_value_fn:
