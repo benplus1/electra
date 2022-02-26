@@ -136,10 +136,12 @@ class SingleOutputTask(task.Task):
       input_ids.append(0)
       input_mask.append(0)
       segment_ids.append(0)
+      cls_ids.append(-2)
 
     assert len(input_ids) == self.config.max_seq_length
     assert len(input_mask) == self.config.max_seq_length
     assert len(segment_ids) == self.config.max_seq_length
+    assert len(cls_ids) == self.config.max_seq_length
 
     if log:
       utils.log("  Example {:}".format(example.eid))
@@ -218,7 +220,7 @@ class ClassificationTask(SingleOutputTask):
   def get_feature_specs(self):
     return [feature_spec.FeatureSpec(self.name + "_eid", []),
             feature_spec.FeatureSpec(self.name + "_label_ids", [self.config.max_seq_length]),
-            feature_spec.FeatureSpec(self.name + "_cls_ids", [], allow_missing = True)]
+            feature_spec.FeatureSpec(self.name + "_cls_ids", [self.config.max_seq_length])]
 
   def _add_features(self, features, example, log):
     label_map = {}
