@@ -247,7 +247,7 @@ class ClassificationTask(SingleOutputTask):
     if is_training:
       reprs = tf.nn.dropout(reprs, keep_prob=0.9) # dropout looks at everything, so this is fine
 
-    # reprs = tf.gather(reprs, features['cls_ids'], axis=1)
+    reprs = tf.gather(reprs, features['cls_ids'], axis=1)
     utils.log(features)
     utils.log(reprs)
     # sequence_output: [batch_size, seq_length, hidden_size]

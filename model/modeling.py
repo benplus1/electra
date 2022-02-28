@@ -167,7 +167,6 @@ class BertModel(object):
       ValueError: The config is invalid or one of the input tensor shapes
         is invalid.
     """
-    tf.enable_eager_execution()
     bert_config = copy.deepcopy(bert_config)
     if not is_training:
       bert_config.hidden_dropout_prob = 0.0
