@@ -144,7 +144,7 @@ class SingleOutputTask(task.Task):
     utils.log("    input_mask: {:}".format(" ".join(map(str, input_mask))))
     utils.log("    segment_ids: {:}".format(" ".join(map(str, segment_ids))))
     utils.log("    cls_ids: {:}".format(" ".join(map(str, cls_ids))))
-
+    utils.log(self.config.max_seq_length)
     assert len(input_ids) == self.config.max_seq_length
     assert len(input_mask) == self.config.max_seq_length
     assert len(segment_ids) == self.config.max_seq_length
