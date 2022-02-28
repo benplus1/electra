@@ -294,10 +294,10 @@ class ClassificationTask(SingleOutputTask):
 
     # reprs is [batch_size, seq_length, hidden_size]
     # cls_ids is [batch_size, seq_length], where it is 1 where there is a cls, and 0 otherwise.
-    dims = tf.constant([1, 1, tf.shape(reprs)[2]])
+    dims = tf.constant([1, 1, 256])
     tiled_cls_mask = tf.tile(features[self.name + "_cls_ids"], dims)
+    utils.log(tiled_cls_mask)
     reprs = tf.multiply(reprs, tiled_cls_mask)
-
     utils.log(features)
     utils.log(reprs)
     # sequence_output: [batch_size, seq_length, hidden_size]
