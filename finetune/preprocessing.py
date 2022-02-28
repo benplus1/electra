@@ -83,6 +83,7 @@ class Preprocessor(object):
           examples, is_training, tfrecords_path, batch_size)
       utils.write_json({"n_examples": n_examples}, metadata_path)
 
+    utils.log(n_examples)
     input_fn = self._input_fn_builder(tfrecords_path, is_training)
     if is_training:
       steps = int(n_examples // batch_size * self._config.num_train_epochs)
