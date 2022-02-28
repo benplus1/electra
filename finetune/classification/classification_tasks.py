@@ -184,8 +184,7 @@ class SingleOutputTask(task.Task):
         self.name + "_eid": eid,
         self.name + "_label_ids": label_ids,
     }
-
-    self._add_features(features, example, log)
+    # self._add_features(features, example, log)
     return features
 
   def _load_glue(self, lines, split, is_state_tok, is_pos_tok, cor_tok, neg_tok):
