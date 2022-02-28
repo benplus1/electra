@@ -48,7 +48,7 @@ class FeatureSpec(object):
   # modify to get allow_missing
   def get_parsing_spec(self):
     if self.allow_missing:
-      return tf.io.tf.io.VarLenFeature(tf.int64 if self.is_int_feature else tf.float32)
+      return tf.io.VarLenFeature(tf.int64 if self.is_int_feature else tf.float32)
 
     else:
       return tf.io.FixedLenFeature(
