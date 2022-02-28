@@ -172,4 +172,5 @@ class Preprocessor(object):
         example[name] = tf.cast(tensor, tf.int32)
       else:
         example[name] = tensor
+    utils.log('yep here')
     return example
