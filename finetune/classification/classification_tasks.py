@@ -110,10 +110,16 @@ class SingleOutputTask(task.Task):
     # the entire model is fine-tuned.
 
     ex_cls_locs = example.cls_locs
+    ex_labels = example.labels
 
     tokens = []
     segment_ids = []
     cls_ids = [] # new
+
+    label_ids = []
+    label_map = {}
+    for (i, label) in enumerate(self._label_list):
+      label_map[label] = i
 
     for (i, token) in enumerate(tokens_a):
       if i in ex_cls_locs:
@@ -121,12 +127,19 @@ class SingleOutputTask(task.Task):
         segment_ids.append(0)
         # cls_ids.append(len(tokens)-1)
         cls_ids.append(1)
+        if ex_labels[ex_cls_locs.index(i)] == '0':
+          label_ids.append(0)
+        else:
+          label_ids.append(1)
       tokens.append(token)
       segment_ids.append(0)
       cls_ids.append(0)
+      label_ids.append(0)
 
     tokens.append("[SEP]")
     segment_ids.append(0)
+    cls_ids.append(0)
+    label_ids.append(0)
 
     input_ids = self._tokenizer.convert_tokens_to_ids(tokens)
 
@@ -134,12 +147,17 @@ class SingleOutputTask(task.Task):
     # tokens are attended to.
     input_mask = [1] * len(input_ids)
 
+    # LABELS
+    for label in example.labels:
+      label_ids.append(label_map[label])
+
     # Zero-pad up to the sequence length.
     while len(input_ids) < self.config.max_seq_length:
       input_ids.append(0)
       input_mask.append(0)
       segment_ids.append(0)
       cls_ids.append(0)
+      label_ids.append(0)
 
     if log:
       utils.log("  Example {:}".format(example.eid))
@@ -149,6 +167,7 @@ class SingleOutputTask(task.Task):
       utils.log("    input_mask: {:}".format(" ".join(map(str, input_mask))))
       utils.log("    segment_ids: {:}".format(" ".join(map(str, segment_ids))))
       utils.log("    cls_ids: {:}".format(" ".join(map(str, cls_ids))))
+      utils.log("    labels: {:} (id = {:})".format(example.labels, label_ids))
       utils.log(self.config.max_seq_length)
     assert len(input_ids) == self.config.max_seq_length
     assert len(input_mask) == self.config.max_seq_length
@@ -163,13 +182,17 @@ class SingleOutputTask(task.Task):
         "task_id": self.config.task_names.index(self.name),
         self.name + "_cls_ids": cls_ids,
         self.name + "_eid": eid,
+        self.name + "_label_ids": label_ids,
     }
+
     self._add_features(features, example, log)
     return features
 
   def _load_glue(self, lines, split, is_state_tok, is_pos_tok, cor_tok, neg_tok):
     examples = []
     text_a_buf = ""
+    labels_buf = ""
+    start_buf = ""
     curr_labels = []
     curr_cls_locs = []
     curr_eid_i = 0
@@ -181,15 +204,18 @@ class SingleOutputTask(task.Task):
           else:
             text_a_buf = tokenization.convert_to_unicode(line)
         elif (i % 4 == 1): # its the start cls
-          for (j, k) in enumerate(line.split()):
-            if k == is_state_tok:
-              curr_cls_locs.append(j)
+          start_buf = line
         elif (i % 4 == 2): # its the labels
-          for k in line.split():
-            actual_val = cor_tok if k == is_pos_tok else neg_tok
-            label = tokenization.convert_to_unicode(actual_val)
-            curr_labels.append(label)
+          labels_buf = line
         elif (i % 4 == 3): # its the new line. 
+          
+          for (j, (start_statement, label)) in enumerate(zip(start_buf.split(), labels_buf.split())):
+            if start_statement == is_state_tok:
+              curr_cls_locs.append(j)
+              actual_val = cor_tok if label == is_pos_tok else neg_tok
+              label = tokenization.convert_to_unicode(actual_val)
+              curr_labels.append(label)
+
           if len(text_a_buf) < 500:
             examples.append(InputExample(eid=curr_eid_i, task_name=self.name,
                                         text_a=copy.deepcopy(text_a_buf), labels=copy.deepcopy(curr_labels), cls_locs=copy.deepcopy(curr_cls_locs)))
@@ -286,7 +312,10 @@ class ClassificationTask(SingleOutputTask):
 
     # usually, label_id is a scalar, which returns an output_shape of vector length depth (2)
     # now, indices is a vector of length features (num_cls_ids), which retursn features x depth for axis == -1, depth x features for axis == 0
+    # need to make labels of size seq_length
     # [seq_length, 2] or [2, seq_length]
+    # label_ids is 0 when cls token has a negative label, for padding, and for non-cls tokens
+    # label_ids is 1 when cls token has a positive label
     labels = tf.one_hot(label_ids, depth=num_labels, dtype=tf.float32, axis=-1)
 
     # labels is vector of length 2, log_probs is tensor of shape [batch_size, 2]
