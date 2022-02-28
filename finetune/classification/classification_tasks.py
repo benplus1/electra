@@ -137,14 +137,15 @@ class SingleOutputTask(task.Task):
       input_mask.append(0)
       segment_ids.append(0)
 
-    utils.log("  Example {:}".format(example.eid))
-    utils.log("    tokens: {:}".format(" ".join(
-        [tokenization.printable_text(x) for x in tokens])))
-    utils.log("    input_ids: {:}".format(" ".join(map(str, input_ids))))
-    utils.log("    input_mask: {:}".format(" ".join(map(str, input_mask))))
-    utils.log("    segment_ids: {:}".format(" ".join(map(str, segment_ids))))
-    utils.log("    cls_ids: {:}".format(" ".join(map(str, cls_ids))))
-    utils.log(self.config.max_seq_length)
+    if log:
+      utils.log("  Example {:}".format(example.eid))
+      utils.log("    tokens: {:}".format(" ".join(
+          [tokenization.printable_text(x) for x in tokens])))
+      utils.log("    input_ids: {:}".format(" ".join(map(str, input_ids))))
+      utils.log("    input_mask: {:}".format(" ".join(map(str, input_mask))))
+      utils.log("    segment_ids: {:}".format(" ".join(map(str, segment_ids))))
+      utils.log("    cls_ids: {:}".format(" ".join(map(str, cls_ids))))
+      utils.log(self.config.max_seq_length)
     assert len(input_ids) == self.config.max_seq_length
     assert len(input_mask) == self.config.max_seq_length
     assert len(segment_ids) == self.config.max_seq_length
@@ -246,10 +247,9 @@ class ClassificationTask(SingleOutputTask):
     if is_training:
       reprs = tf.nn.dropout(reprs, keep_prob=0.9) # dropout looks at everything, so this is fine
 
-    reprs = tf.gather(reprs, features['cls_ids'], axis=1)
+    # reprs = tf.gather(reprs, features['cls_ids'], axis=1)
     utils.log(features)
     utils.log(reprs)
-
     # sequence_output: [batch_size, seq_length, hidden_size]
     # pooled_output: [batch_size, hidden_size]
     # layers_dense goes from [batch_size, hidden_size] -> [batch_size, 2] (last dimension becomes 2)
