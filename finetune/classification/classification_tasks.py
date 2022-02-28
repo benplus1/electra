@@ -45,9 +45,9 @@ class InputExample(task.Example):
 def read_txt(input_file, quotechar=None):
   """Reads a tab separated value file."""
   with tf.io.gfile.GFile(input_file, "r") as f:
-    reader = csv.reader(f, delimiter=" ", quotechar=quotechar)
+    # reader = csv.reader(f, delimiter=" ", quotechar=quotechar)
     lines = []
-    for line in reader:
+    for line in f:
       lines.append(line)
     return lines
 
@@ -162,7 +162,7 @@ class SingleOutputTask(task.Task):
     self._add_features(features, example, log)
     return features
 
-  def _load_glue(self, lines, split, text_a_loc, is_state_loc, label_loc, is_state_tok, is_pos_tok, cor_tok, neg_tok):
+  def _load_glue(self, lines, split, is_state_tok, is_pos_tok, cor_tok, neg_tok):
     examples = []
     text_a_buf = ""
     curr_labels = []
@@ -170,9 +170,21 @@ class SingleOutputTask(task.Task):
     curr_eid_i = 0
     for (i, line) in enumerate(lines):
       try:
-        utils.log(i + "asdfasdfasdf" + line)
-        utils.log()
-        if line == "\n":
+        if (i % 4 == 0): # it's the text itself
+          if (line == '\n'): # its the end of the file
+            return examples
+          else:
+            text_a_buf = tokenization.convert_to_unicode(line)
+        elif (i % 4 == 1): # its the start cls
+          for (j, k) in enumerate(line.split()):
+            if k == is_state_tok:
+              curr_cls_locs.append(j)
+        elif (i % 4 == 2): # its the labels
+          for k in line.split():
+            actual_val = cor_tok if k == is_pos_tok else neg_tok
+            label = tokenization.convert_to_unicode(actual_val)
+            curr_labels.append(label)
+        elif (i % 4 == 3): # its the new line. 
           examples.append(InputExample(eid=curr_eid_i, task_name=self.name,
                                       text_a=copy.deepcopy(text_a_buf), labels=copy.deepcopy(curr_labels), cls_locs=copy.deepcopy(curr_cls_locs)))
           # clean buffers
@@ -180,15 +192,6 @@ class SingleOutputTask(task.Task):
           curr_labels = []
           curr_cls_locs = []
           curr_eid_i += 1
-        else:
-          text_a_buf += tokenization.convert_to_unicode(line[text_a_loc])
-          is_statement = line[is_state_loc]
-          if is_statement == is_state_tok:
-            curr_cls_locs.append(i)
-            actual_val = cor_tok if line[label_loc] == is_pos_tok else neg_tok
-            label = tokenization.convert_to_unicode(actual_val)
-            curr_labels.append(label)
-
       except Exception as ex:
         utils.log("Error constructing example from line", i,
                   "for task", self.name + ":", ex)
@@ -294,9 +297,9 @@ class SST(ClassificationTask):
 
   def _create_examples(self, lines, split):
     if "test" in split:
-      return self._load_glue(lines, split, 1, None, 2, 'S', 'P', '1', '0')
+      return self._load_glue(lines, split, 'S', 'P', '1', '0')
     else:
-      return self._load_glue(lines, split, 0, 1, 2, 'S', 'P', '1', '0')
+      return self._load_glue(lines, split, 'S', 'P', '1', '0')
 
 
 # def _truncate_seq_pair(tokens_a, tokens_b, max_length):
