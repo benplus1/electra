@@ -253,8 +253,8 @@ class ClassificationTask(SingleOutputTask):
 
     # cls_ids is now fixed, -2 as padding.
     # get index of max number:
-    last_cls_value = tf.math.argmax(features['cls_ids'])
-    correct_cls = features['cls_ids'][:last_cls_value]
+    last_cls_value = tf.math.argmax(features['sst_cls_ids'])
+    correct_cls = features['sst_cls_ids'][:last_cls_value]
     utils.log(last_cls_value)
     utils.log(correct_cls)
     reprs = tf.gather(reprs, correct_cls, axis=1)
