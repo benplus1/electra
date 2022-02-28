@@ -80,6 +80,7 @@ class Preprocessor(object):
       for task in tasks:
         task_examples = task.get_examples(split)
         examples += task_examples
+      utils.log(examples)
       if is_training:
         random.shuffle(examples)
       utils.mkdir(tfrecords_path.rsplit("/", 1)[0])
