@@ -148,7 +148,6 @@ class SingleOutputTask(task.Task):
     assert len(input_ids) == self.config.max_seq_length
     assert len(input_mask) == self.config.max_seq_length
     assert len(segment_ids) == self.config.max_seq_length
-    assert len(cls_ids) == self.config.max_seq_length
 
     eid = example.eid
     features = {
@@ -247,8 +246,9 @@ class ClassificationTask(SingleOutputTask):
     if is_training:
       reprs = tf.nn.dropout(reprs, keep_prob=0.9) # dropout looks at everything, so this is fine
 
-    # DO NOT GATHER, PERFORM THE INDEXING ON METRICS
-    # reprs = tf.gather(reprs, features['cls_ids'], axis=1)
+    reprs = tf.gather(reprs, features['cls_ids'], axis=1)
+    utils.log(features)
+    utils.log(reprs)
 
     # sequence_output: [batch_size, seq_length, hidden_size]
     # pooled_output: [batch_size, hidden_size]
