@@ -238,6 +238,7 @@ class ClassificationTask(SingleOutputTask):
 
   def get_prediction_module(self, bert_model, features, is_training,
                             percent_done):
+    utils.log('here')
     num_labels = len(self._label_list)
     reprs = bert_model.get_sequence_output() # a list of all seq_length
 
