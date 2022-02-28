@@ -154,7 +154,7 @@ class SingleOutputTask(task.Task):
         "input_ids": input_ids,
         "input_mask": input_mask,
         "segment_ids": segment_ids,
-        self.name + "cls_ids": cls_ids,
+        self.name + "_cls_ids": cls_ids,
         "task_id": self.config.task_names.index(self.name),
         self.name + "_eid": eid,
     }
