@@ -136,7 +136,6 @@ class SingleOutputTask(task.Task):
       input_ids.append(0)
       input_mask.append(0)
       segment_ids.append(0)
-      cls_ids.append(-2)
 
     assert len(input_ids) == self.config.max_seq_length
     assert len(input_mask) == self.config.max_seq_length
@@ -171,6 +170,8 @@ class SingleOutputTask(task.Task):
     curr_eid_i = 0
     for (i, line) in enumerate(lines):
       try:
+        utils.log(i + "asdfasdfasdf" + line)
+        utils.log()
         if line == "\n":
           examples.append(InputExample(eid=curr_eid_i, task_name=self.name,
                                       text_a=copy.deepcopy(text_a_buf), labels=copy.deepcopy(curr_labels), cls_locs=copy.deepcopy(curr_cls_locs)))
