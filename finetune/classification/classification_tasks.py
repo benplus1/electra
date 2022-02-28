@@ -136,6 +136,9 @@ class SingleOutputTask(task.Task):
       input_ids.append(0)
       input_mask.append(0)
       segment_ids.append(0)
+    
+    while len(cls_ids) < self.config.max_seq_length:
+      cls_ids.append(-2)
 
     if log:
       utils.log("  Example {:}".format(example.eid))
@@ -223,7 +226,7 @@ class ClassificationTask(SingleOutputTask):
   def get_feature_specs(self):
     return [feature_spec.FeatureSpec(self.name + "_eid", []),
             feature_spec.FeatureSpec(self.name + "_label_ids", [self.config.max_seq_length]),
-            feature_spec.FeatureSpec(self.name + "_cls_ids", [self.config.max_seq_length], allow_missing=True)]
+            feature_spec.FeatureSpec(self.name + "_cls_ids", [self.config.max_seq_length])]
 
   def _add_features(self, features, example, log):
     label_map = {}
@@ -248,7 +251,13 @@ class ClassificationTask(SingleOutputTask):
     if is_training:
       reprs = tf.nn.dropout(reprs, keep_prob=0.9) # dropout looks at everything, so this is fine
 
-    reprs = tf.gather(reprs, features['cls_ids'], axis=1)
+    # cls_ids is now fixed, -2 as padding.
+    # get index of max number:
+    last_cls_value = tf.math.argmax(features['cls_ids'])
+    correct_cls = features['cls_ids'][:last_cls_value]
+    utils.log(last_cls_value)
+    utils.log(correct_cls)
+    reprs = tf.gather(reprs, correct_cls, axis=1)
     utils.log(features)
     utils.log(reprs)
     # sequence_output: [batch_size, seq_length, hidden_size]

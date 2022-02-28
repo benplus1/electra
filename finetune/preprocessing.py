@@ -169,9 +169,7 @@ class Preprocessor(object):
     # tf.Example only supports tf.int64, but the TPU only supports tf.int32.
     # So cast all int64 to int32.
     for name, tensor in example.items():
-      if name == 'sst_cls_ids':
-        example[name] = tf.sparse_to_dense(tensor)
-      elif tensor.dtype == tf.int64:
+      if tensor.dtype == tf.int64:
         example[name] = tf.cast(tensor, tf.int32)
       else:
         example[name] = tensor
