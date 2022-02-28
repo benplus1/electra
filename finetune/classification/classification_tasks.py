@@ -289,7 +289,8 @@ class ClassificationTask(SingleOutputTask):
     cls_mask_expand = tf.expand_dims(features[self.name + "_cls_ids"], 2)
     tiled_cls_mask = tf.tile(cls_mask_expand, dims)
     utils.log(tiled_cls_mask)
-    reprs = tf.multiply(reprs, tiled_cls_mask)
+    utils.log(reprs)
+    reprs = tf.multiply(reprs, tf.cast(tiled_cls_mask, tf.float32))
     utils.log(features)
     utils.log(reprs)
     # sequence_output: [batch_size, seq_length, hidden_size]
