@@ -279,15 +279,6 @@ class ClassificationTask(SingleOutputTask):
 
     if is_training:
       reprs = tf.nn.dropout(reprs, keep_prob=0.9) # dropout looks at everything, so this is fine
-
-    # cls_ids is now fixed, -2 as padding.
-    # get index of max number:
-
-    # all_cls = tf.squeeze(features['sst_cls_ids'])
-    # utils.log(all_cls)
-    # index_cor = tf.squeeze(features['sst_cls_id_end'])
-    # correct_cls = all_cls[:index_cor]
-    # utils.log(correct_cls)
     
     # reprs = tf.gather(reprs, correct_cls, axis=1)
     # reprs = gather_positions(reprs, correct_cls)
@@ -295,7 +286,8 @@ class ClassificationTask(SingleOutputTask):
     # reprs is [batch_size, seq_length, hidden_size]
     # cls_ids is [batch_size, seq_length], where it is 1 where there is a cls, and 0 otherwise.
     dims = tf.constant([1, 1, 256])
-    tiled_cls_mask = tf.tile(features[self.name + "_cls_ids"], dims)
+    cls_mask_expand = tf.expand_dims(features[self.name + "_cls_ids"], 2)
+    tiled_cls_mask = tf.tile(cls_mask_expand, dims)
     utils.log(tiled_cls_mask)
     reprs = tf.multiply(reprs, tiled_cls_mask)
     utils.log(features)
