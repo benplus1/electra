@@ -66,7 +66,10 @@ class SingleOutputTask(task.Task):
     # return self._create_examples(read_tsv(
     #     os.path.join(self.config.raw_data_dir(self.name), split + ".tsv"),
     #     max_lines=100 if self.config.debug else None), split)
-    return self._create_examples(read_txt(os.path.join(self.config.raw_data_dir(self.name), split +".txt")), split)
+    examples = self._create_examples(read_txt(os.path.join(self.config.raw_data_dir(self.name), split +".txt")), split)
+    utils.log(os.path.join(self.config.raw_data_dir(self.name), split +".txt"))
+    utils.log(examples)
+    return examples
 
   @abc.abstractmethod
   def _create_examples(self, lines, split):
