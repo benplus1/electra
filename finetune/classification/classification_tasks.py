@@ -191,7 +191,7 @@ class SingleOutputTask(task.Task):
             label = tokenization.convert_to_unicode(actual_val)
             curr_labels.append(label)
         elif (i % 4 == 3): # its the new line. 
-          if len(text_a_buf < 500):
+          if len(text_a_buf) < 500:
             examples.append(InputExample(eid=curr_eid_i, task_name=self.name,
                                         text_a=copy.deepcopy(text_a_buf), labels=copy.deepcopy(curr_labels), cls_locs=copy.deepcopy(curr_cls_locs)))
           # clean buffers
