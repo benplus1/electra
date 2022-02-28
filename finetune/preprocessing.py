@@ -68,7 +68,11 @@ class Preprocessor(object):
     n_examples = None
     if (self._config.use_tfrecords_if_existing and
         tf.io.gfile.exists(metadata_path)):
+      utils.log(tfrecords_path)
+      utils.log(metadata_path)
+      utils.log()
       n_examples = utils.load_json(metadata_path)["n_examples"]
+      utils.log(n_examples)
 
     if n_examples is None:
       utils.log("Existing tfrecords not found so creating")
