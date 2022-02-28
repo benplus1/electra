@@ -170,8 +170,10 @@ class Preprocessor(object):
     # So cast all int64 to int32.
     for name, tensor in example.items():
       if tensor.dtype == tf.int64:
-        example[name] = tf.cast(tf.sparse.to_dense(tensor), tf.int32)
+        example[name] = tf.cast(tensor, tf.int32)
+      elif tensor.dtype == tf.sparse_tensor:
+        example[name] = tf.sparse_to_dense(tensor)
       else:
-        example[name] = tf.sparse.to_dense(tensor)
+        example[name] = (tensor)
     utils.log('yep here')
     return example
