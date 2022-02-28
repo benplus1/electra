@@ -204,13 +204,19 @@ class TaggingTask(task.Task):
       self, bert_model, features, is_training, percent_done):
     n_classes = len(self._get_label_mapping())
     reprs = bert_model.get_sequence_output()
+    utils.log(reprs)
     reprs = pretrain_helpers.gather_positions(
         reprs, features[self.name + "_labeled_positions"])
+    utils.log(reprs)
     logits = tf.layers.dense(reprs, n_classes)
+    utils.log(logits)
+    utils.log(tf.one_hot(features[self.name + "_labels"]))
     losses = tf.nn.softmax_cross_entropy_with_logits(
         labels=tf.one_hot(features[self.name + "_labels"], n_classes),
         logits=logits)
+    utils.log(losses)
     losses *= features[self.name + "_labels_mask"]
+    utils.log(losses)
     losses = tf.reduce_sum(losses, axis=-1)
     utils.log("in this prediction module")
     utils.log("losses")

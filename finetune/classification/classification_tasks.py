@@ -277,6 +277,7 @@ class ClassificationTask(SingleOutputTask):
     if is_training:
       reprs = tf.nn.dropout(reprs, keep_prob=0.9) # dropout looks at everything, so this is fine
     
+    utils.log(reprs)
     # reprs = tf.gather(reprs, correct_cls, axis=1)
     # reprs = gather_positions(reprs, correct_cls)
 
@@ -285,16 +286,19 @@ class ClassificationTask(SingleOutputTask):
     dims = tf.constant([1, 1, 256])
     cls_mask_expand = tf.expand_dims(features[self.name + "_cls_ids"], 2)
     tiled_cls_mask = tf.tile(cls_mask_expand, dims)
+    utils.log(tiled_cls_mask)
     reprs = tf.multiply(reprs, tf.cast(tiled_cls_mask, tf.float32))
+    utils.log(reprs)
     # sequence_output: [batch_size, seq_length, hidden_size]
     # pooled_output: [batch_size, hidden_size]
     # layers_dense goes from [batch_size, hidden_size] -> [batch_size, 2] (last dimension becomes 2)
     # [batch_size, seq_length, hidden_size] -> [batch_size, seq_length, 2]
     logits = tf.layers.dense(reprs, num_labels) # reprs is supposed to be pooledoutput, but is currently sequenceoutput
+    utils.log(logits)
     # same shape as logits -> [batch_size, 2]
     # [batch_size, seq_length, 2]
     log_probs = tf.nn.log_softmax(logits, axis=-1)
-
+    utils.log(log_probs)
     # usually, label_id is a scalar, which returns an output_shape of vector length depth (2)
     # now, indices is a vector of length features (num_cls_ids), which retursn features x depth for axis == -1, depth x features for axis == 0
     # need to make labels of size seq_length
@@ -302,11 +306,11 @@ class ClassificationTask(SingleOutputTask):
     # label_ids is 0 when cls token has a negative label, for padding, and for non-cls tokens
     # label_ids is 1 when cls token has a positive label
     labels = tf.one_hot(label_ids, depth=num_labels, dtype=tf.float32, axis=-1)
-
+    utils.log(labels)
     # labels is vector of length 2, log_probs is tensor of shape [batch_size, 2]
     # losses = -tf.reduce_sum(labels * log_probs, axis=-1) -> [batch_size, ]
     losses = -tf.reduce_sum(labels * log_probs)
-
+    utils.log(losses)
     # logits -> [batch_size, 2] -> [batch_size, ]
     # logits -> [batch_size, seq_length, 2] -> [batch_size, seq_length]
     redictions = tf.argmax(logits, axis=-1)
