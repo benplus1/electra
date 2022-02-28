@@ -194,6 +194,7 @@ class ModelRunner(object):
     results = self._estimator.predict(input_fn=eval_input_fn,
                                       yield_single_examples=True)
     scorer = task.get_scorer()
+    utils.log(results)
     for r in results:
       utils.log("______________________________------------------------______________________________")
       utils.log(r)

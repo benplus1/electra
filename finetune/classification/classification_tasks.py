@@ -169,6 +169,7 @@ class SingleOutputTask(task.Task):
     assert len(input_mask) == self.config.max_seq_length
     assert len(segment_ids) == self.config.max_seq_length
     assert len(cls_ids) == self.config.max_seq_length
+    assert len(label_ids) == self.config.max_seq_length
 
     eid = example.eid
     features = {
