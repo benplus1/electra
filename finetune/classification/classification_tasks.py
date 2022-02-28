@@ -257,7 +257,7 @@ class ClassificationTask(SingleOutputTask):
 
     # cls_ids is now fixed, -2 as padding.
     # get index of max number:
-    all_cls = features['sst_cls_ids']
+    all_cls = tf.squeeze(features['sst_cls_ids'])
     utils.log(all_cls)
     correct_cls = all_cls[:features['sst_cls_id_end']]
     utils.log(correct_cls)
