@@ -194,15 +194,14 @@ class ModelRunner(object):
     results = self._estimator.predict(input_fn=eval_input_fn,
                                       yield_single_examples=True)
     scorer = task.get_scorer()
-    utils.log(results[0])
-    r = results
-    # for r in results:
-    utils.log("______________________________------------------------______________________________")
-    utils.log(r)
-    utils.log("______________________________------------------------______________________________")
-    if r["task_id"] != len(self._tasks):  # ignore padding examples
-      r = utils.nest_dict(r, self._config.task_names)
-      scorer.update(r[task.name])
+    results = tf.expand_dims(results, 0)
+    for r in results:
+      utils.log("______________________________------------------------______________________________")
+      utils.log(r)
+      utils.log("______________________________------------------------______________________________")
+      if r["task_id"] != len(self._tasks):  # ignore padding examples
+        r = utils.nest_dict(r, self._config.task_names)
+        scorer.update(r[task.name])
     if return_results:
       utils.log(task.name + ": " + scorer.results_str())
       utils.log()
