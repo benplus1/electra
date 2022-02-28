@@ -137,6 +137,8 @@ class SingleOutputTask(task.Task):
       input_mask.append(0)
       segment_ids.append(0)
     
+    cls_id_end = len(cls_ids)
+
     while len(cls_ids) < self.config.max_seq_length:
       cls_ids.append(-2)
 
@@ -158,8 +160,9 @@ class SingleOutputTask(task.Task):
         "input_ids": input_ids,
         "input_mask": input_mask,
         "segment_ids": segment_ids,
-        self.name + "_cls_ids": cls_ids,
         "task_id": self.config.task_names.index(self.name),
+        self.name + "_cls_ids": cls_ids,
+        self.name + "_cls_id_end": cls_id_end,
         self.name + "_eid": eid,
     }
     self._add_features(features, example, log)
@@ -226,7 +229,8 @@ class ClassificationTask(SingleOutputTask):
   def get_feature_specs(self):
     return [feature_spec.FeatureSpec(self.name + "_eid", []),
             feature_spec.FeatureSpec(self.name + "_label_ids", [self.config.max_seq_length]),
-            feature_spec.FeatureSpec(self.name + "_cls_ids", [self.config.max_seq_length])]
+            feature_spec.FeatureSpec(self.name + "_cls_ids", [self.config.max_seq_length]),
+            feature_spec.FeatureSpec(self.name + "_cls_id_end", [])]
 
   def _add_features(self, features, example, log):
     label_map = {}
@@ -253,9 +257,7 @@ class ClassificationTask(SingleOutputTask):
 
     # cls_ids is now fixed, -2 as padding.
     # get index of max number:
-    last_cls_value = tf.math.argmax(features['sst_cls_ids'])
-    correct_cls = features['sst_cls_ids'][:last_cls_value]
-    utils.log(last_cls_value)
+    correct_cls = features['sst_cls_ids'][:features['sst_cls_id_end']]
     utils.log(correct_cls)
     reprs = tf.gather(reprs, correct_cls, axis=1)
     utils.log(features)
