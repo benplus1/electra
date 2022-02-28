@@ -28,6 +28,7 @@ import configure_finetuning
 from finetune import feature_spec
 from finetune import task
 from finetune.classification import classification_metrics
+from pretrain.pretrain_helpers import gather_positions
 from model import tokenization
 from util import utils
 import copy
@@ -118,9 +119,11 @@ class SingleOutputTask(task.Task):
       if i in ex_cls_locs:
         tokens.append("[CLS]")
         segment_ids.append(0)
-        cls_ids.append(len(tokens)-1)
+        # cls_ids.append(len(tokens)-1)
+        cls_ids.append(1)
       tokens.append(token)
       segment_ids.append(0)
+      cls_ids.append(0)
 
     tokens.append("[SEP]")
     segment_ids.append(0)
@@ -136,11 +139,7 @@ class SingleOutputTask(task.Task):
       input_ids.append(0)
       input_mask.append(0)
       segment_ids.append(0)
-    
-    cls_id_end = len(cls_ids)
-
-    while len(cls_ids) < self.config.max_seq_length:
-      cls_ids.append(-2)
+      cls_ids.append(0)
 
     if log:
       utils.log("  Example {:}".format(example.eid))
@@ -154,6 +153,7 @@ class SingleOutputTask(task.Task):
     assert len(input_ids) == self.config.max_seq_length
     assert len(input_mask) == self.config.max_seq_length
     assert len(segment_ids) == self.config.max_seq_length
+    assert len(cls_ids) == self.config.max_seq_length
 
     eid = example.eid
     features = {
@@ -162,7 +162,6 @@ class SingleOutputTask(task.Task):
         "segment_ids": segment_ids,
         "task_id": self.config.task_names.index(self.name),
         self.name + "_cls_ids": cls_ids,
-        self.name + "_cls_id_end": cls_id_end,
         self.name + "_eid": eid,
     }
     self._add_features(features, example, log)
@@ -230,8 +229,7 @@ class ClassificationTask(SingleOutputTask):
   def get_feature_specs(self):
     return [feature_spec.FeatureSpec(self.name + "_eid", []),
             feature_spec.FeatureSpec(self.name + "_label_ids", [self.config.max_seq_length]),
-            feature_spec.FeatureSpec(self.name + "_cls_ids", [self.config.max_seq_length]),
-            feature_spec.FeatureSpec(self.name + "_cls_id_end", [])]
+            feature_spec.FeatureSpec(self.name + "_cls_ids", [self.config.max_seq_length])]
 
   def _add_features(self, features, example, log):
     label_map = {}
@@ -259,12 +257,22 @@ class ClassificationTask(SingleOutputTask):
 
     # cls_ids is now fixed, -2 as padding.
     # get index of max number:
-    all_cls = tf.squeeze(features['sst_cls_ids'])
-    utils.log(all_cls)
-    index_cor = tf.squeeze(features['sst_cls_id_end'])
-    correct_cls = all_cls[:index_cor]
-    utils.log(correct_cls)
-    reprs = tf.gather(reprs, correct_cls, axis=1)
+
+    # all_cls = tf.squeeze(features['sst_cls_ids'])
+    # utils.log(all_cls)
+    # index_cor = tf.squeeze(features['sst_cls_id_end'])
+    # correct_cls = all_cls[:index_cor]
+    # utils.log(correct_cls)
+    
+    # reprs = tf.gather(reprs, correct_cls, axis=1)
+    # reprs = gather_positions(reprs, correct_cls)
+
+    # reprs is [batch_size, seq_length, hidden_size]
+    # cls_ids is [batch_size, seq_length], where it is 1 where there is a cls, and 0 otherwise.
+    dims = tf.constant([1, 1, tf.shape(reprs)[2]])
+    tiled_cls_mask = tf.tile(features[self.name + "_cls_ids"], dims)
+    reprs = tf.multiply(reprs, tiled_cls_mask)
+
     utils.log(features)
     utils.log(reprs)
     # sequence_output: [batch_size, seq_length, hidden_size]
