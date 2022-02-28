@@ -165,6 +165,7 @@ class Preprocessor(object):
     utils.log('decoding')
     example = tf.io.parse_single_example(record, self._name_to_feature_config)
     utils.log('done decode')
+    utils.log(example)
     # tf.Example only supports tf.int64, but the TPU only supports tf.int32.
     # So cast all int64 to int32.
     for name, tensor in example.items():
