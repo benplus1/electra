@@ -251,6 +251,7 @@ class ClassificationTask(SingleOutputTask):
     reprs = bert_model.get_sequence_output() # a list of all seq_length
 
     utils.log(reprs)
+    utils.log(features)
     label_ids =  features[self.name + "_label_ids"]
 
     if is_training:
