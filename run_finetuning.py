@@ -195,7 +195,10 @@ class ModelRunner(object):
                                       yield_single_examples=True)
     scorer = task.get_scorer()
     # results = tf.expand_dims(results, 0)
-    for r in list(results):
+    results = list(results)
+    utils.log(len(results))
+    print(len(results))
+    for r in results:
       utils.log("______________________________------------------------______________________________")
       utils.log(r)
       utils.log("______________________________------------------------______________________________")

@@ -269,12 +269,9 @@ class ClassificationTask(SingleOutputTask):
 
   def get_prediction_module(self, bert_model, features, is_training,
                             percent_done):
-    utils.log('here')
     num_labels = len(self._label_list)
     reprs = bert_model.get_sequence_output() # a list of all seq_length
 
-    utils.log(reprs)
-    utils.log(features)
     label_ids =  features[self.name + "_label_ids"]
 
     if is_training:
@@ -288,11 +285,7 @@ class ClassificationTask(SingleOutputTask):
     dims = tf.constant([1, 1, 256])
     cls_mask_expand = tf.expand_dims(features[self.name + "_cls_ids"], 2)
     tiled_cls_mask = tf.tile(cls_mask_expand, dims)
-    utils.log(tiled_cls_mask)
-    utils.log(reprs)
     reprs = tf.multiply(reprs, tf.cast(tiled_cls_mask, tf.float32))
-    utils.log(features)
-    utils.log(reprs)
     # sequence_output: [batch_size, seq_length, hidden_size]
     # pooled_output: [batch_size, hidden_size]
     # layers_dense goes from [batch_size, hidden_size] -> [batch_size, 2] (last dimension becomes 2)

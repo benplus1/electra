@@ -161,7 +161,6 @@ class TaggingTask(task.Task):
         self.name + "_labeled_positions": labeled_positions
     }
 
-    utils.log(output)
     return output
 
   def _get_labeled_sentences(self, split):
@@ -234,7 +233,6 @@ def tokenize_and_align(tokenizer, words, cased=False):
   """Splits up words into subword-level tokens."""
   words = ["[CLS]"] + list(words) + ["[SEP]"]
   utils.log("inside tokenize and align")
-  utils.log(words)
   basic_tokenizer = tokenizer.basic_tokenizer
   tokenized_words = []
   for word in words:
