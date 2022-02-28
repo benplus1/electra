@@ -147,10 +147,6 @@ class SingleOutputTask(task.Task):
     # tokens are attended to.
     input_mask = [1] * len(input_ids)
 
-    # LABELS
-    for label in example.labels:
-      label_ids.append(label_map[label])
-
     # Zero-pad up to the sequence length.
     while len(input_ids) < self.config.max_seq_length:
       input_ids.append(0)
