@@ -324,6 +324,7 @@ class ClassificationTask(SingleOutputTask):
         predictions=redictions,
         probabilities=robabilities,
         label_ids=label_ids,
+        cls_ids=features[self.name + "_cls_ids"],
         eid=features[self.name + "_eid"],
     )
     return losses, outputs
