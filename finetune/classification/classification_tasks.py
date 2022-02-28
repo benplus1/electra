@@ -259,7 +259,8 @@ class ClassificationTask(SingleOutputTask):
     # get index of max number:
     all_cls = tf.squeeze(features['sst_cls_ids'])
     utils.log(all_cls)
-    correct_cls = all_cls[:features['sst_cls_id_end']]
+    index_cor = tf.squeeze(features['sst_cls_id_end'])
+    correct_cls = all_cls[:index_cor]
     utils.log(correct_cls)
     reprs = tf.gather(reprs, correct_cls, axis=1)
     utils.log(features)
