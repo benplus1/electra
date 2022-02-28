@@ -143,14 +143,13 @@ class SingleOutputTask(task.Task):
     assert len(segment_ids) == self.config.max_seq_length
     assert len(cls_ids) == self.config.max_seq_length
 
-    if True:
-      utils.log("  Example {:}".format(example.eid))
-      utils.log("    tokens: {:}".format(" ".join(
-          [tokenization.printable_text(x) for x in tokens])))
-      utils.log("    input_ids: {:}".format(" ".join(map(str, input_ids))))
-      utils.log("    input_mask: {:}".format(" ".join(map(str, input_mask))))
-      utils.log("    segment_ids: {:}".format(" ".join(map(str, segment_ids))))
-      utils.log("    cls_ids: {:}".format(" ".join(map(str, cls_ids))))
+    utils.log("  Example {:}".format(example.eid))
+    utils.log("    tokens: {:}".format(" ".join(
+        [tokenization.printable_text(x) for x in tokens])))
+    utils.log("    input_ids: {:}".format(" ".join(map(str, input_ids))))
+    utils.log("    input_mask: {:}".format(" ".join(map(str, input_mask))))
+    utils.log("    segment_ids: {:}".format(" ".join(map(str, segment_ids))))
+    utils.log("    cls_ids: {:}".format(" ".join(map(str, cls_ids))))
 
     eid = example.eid
     features = {
@@ -220,7 +219,7 @@ class ClassificationTask(SingleOutputTask):
   def get_feature_specs(self):
     return [feature_spec.FeatureSpec(self.name + "_eid", []),
             feature_spec.FeatureSpec(self.name + "_label_ids", [self.config.max_seq_length]),
-            feature_spec.FeatureSpec(self.name + "_cls_ids", [self.config.max_seq_length])]
+            feature_spec.FeatureSpec(self.name + "_cls_ids", [self.config.max_seq_length], allow_missing=True)]
 
   def _add_features(self, features, example, log):
     label_map = {}
