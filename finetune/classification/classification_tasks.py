@@ -89,9 +89,9 @@ class SingleOutputTask(task.Task):
     #   # Account for [CLS], [SEP], [SEP] with "- 3"
     #   _truncate_seq_pair(tokens_a, tokens_b, self.config.max_seq_length - 3)
     # else:
-    #   # Account for [CLS] and [SEP] with "- 2"
-    #   if len(tokens_a) > self.config.max_seq_length - 3: # change from 2 to 3
-    #     tokens_a = tokens_a[0:(self.config.max_seq_length - 3)] # change from 2 to 3
+      # Account for [CLS] and [SEP] with "- cls_locs + 1"
+    if len(tokens_a) > self.config.max_seq_length - (len(example.cls_locs) + 1): # change from 2 to 3
+      tokens_a = tokens_a[0:(self.config.max_seq_length - (len(example.cls_locs) + 1))] # change from 2 to 3
 
     # The convention in BERT is:
     # (a) For sequence pairs:
@@ -215,9 +215,9 @@ class SingleOutputTask(task.Task):
               label = tokenization.convert_to_unicode(actual_val)
               curr_labels.append(label)
 
-          if len(text_a_buf) < 500:
-            examples.append(InputExample(eid=curr_eid_i, task_name=self.name,
-                                        text_a=copy.deepcopy(text_a_buf), labels=copy.deepcopy(curr_labels), cls_locs=copy.deepcopy(curr_cls_locs)))
+          # if len(text_a_buf) < 500:
+          examples.append(InputExample(eid=curr_eid_i, task_name=self.name,
+                                      text_a=copy.deepcopy(text_a_buf), labels=copy.deepcopy(curr_labels), cls_locs=copy.deepcopy(curr_cls_locs)))
           # clean buffers
           text_a_buf = ""
           curr_labels = []
@@ -346,6 +346,7 @@ class SST(ClassificationTask):
     if "test" in split:
       return self._load_glue(lines, split, 'S', 'P', '1', '0')
     else:
+      utils.log("in here in dev doing load glue")
       return self._load_glue(lines, split, 'S', 'P', '1', '0')
 
 
