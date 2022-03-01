@@ -297,24 +297,41 @@ class ClassificationTask(SingleOutputTask):
     utils.log(logits)
     # same shape as logits -> [batch_size, 2]
     # [batch_size, seq_length, 2]
-    log_probs = tf.nn.log_softmax(logits, axis=-1)
-    utils.log(log_probs)
+
+    # log_probs = tf.nn.log_softmax(logits, axis=-1)
+    # utils.log(log_probs)
+
     # usually, label_id is a scalar, which returns an output_shape of vector length depth (2)
     # now, indices is a vector of length features (num_cls_ids), which retursn features x depth for axis == -1, depth x features for axis == 0
     # need to make labels of size seq_length
     # [seq_length, 2] or [2, seq_length]
     # label_ids is 0 when cls token has a negative label, for padding, and for non-cls tokens
     # label_ids is 1 when cls token has a positive label
-    labels = tf.one_hot(label_ids, depth=num_labels, dtype=tf.float32, axis=-1)
-    utils.log(labels)
+
+    # labels = tf.one_hot(label_ids, depth=num_labels, dtype=tf.float32, axis=-1)
+    # utils.log(labels)
+
     # labels is vector of length 2, log_probs is tensor of shape [batch_size, 2]
     # losses = -tf.reduce_sum(labels * log_probs, axis=-1) -> [batch_size, ]
-    losses = -tf.reduce_sum(labels * log_probs, axis=-1)
-    utils.log(losses)
+
+    # losses = -tf.reduce_sum(labels * log_probs, axis=-1)
+    # utils.log(losses)
+
     # logits -> [batch_size, 2] -> [batch_size, ]
     # logits -> [batch_size, seq_length, 2] -> [batch_size, seq_length]
-    redictions = tf.argmax(logits, axis=-1)
 
+    losses = tf.nn.softmax_cross_entropy_with_logits(
+        labels=tf.one_hot(label_ids, depth=num_labels, dtype=tf.float32, axis=-1),
+        logits=logits)
+    utils.log(losses)
+    # losses *= features[self.name + "_labels_mask"]
+    utils.log(losses)
+    losses = tf.reduce_sum(losses, axis=-1)
+    utils.log("in this prediction module")
+    utils.log("losses")
+    utils.log(losses)
+
+    redictions = tf.argmax(logits, axis=-1)
     robabilities = tf.nn.softmax(logits)
 
     outputs = dict(
