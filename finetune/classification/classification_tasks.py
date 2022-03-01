@@ -344,6 +344,7 @@ class ClassificationTask(SingleOutputTask):
     weighted_losses = unweighted_losses * class_weights
     # reduce the result to get your final loss
     losses = tf.reduce_sum(weighted_losses, axis=-1)
+    losses = tf.reduce_sum(losses, axis=-1)
     # losses = tf.losses.softmax_cross_entropy(
     #     onehot_labels=onehot_labels,
     #     logits=logits,
