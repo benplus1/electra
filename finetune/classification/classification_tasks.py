@@ -123,7 +123,8 @@ class SingleOutputTask(task.Task):
     label_map = {}
     for (i, label) in enumerate(self._label_list):
       label_map[label] = i
-
+    negative = 0
+    positive = 0
     for (i, token) in enumerate(tokens_a):
       if i in ex_cls_locs:
         tokens.append("[CLS]")
@@ -132,13 +133,16 @@ class SingleOutputTask(task.Task):
         cls_ids.append(1)
         if ex_labels[ex_cls_locs.index(i)] == '0':
           label_ids.append(0)
+          negative += 1
         else:
           label_ids.append(1)
+          positive += 1
       tokens.append(token)
       segment_ids.append(0)
       cls_ids.append(0)
       label_ids.append(0)
 
+    class_weights = [positive, negative]
     tokens.append("[SEP]")
     segment_ids.append(0)
     cls_ids.append(0)
@@ -183,6 +187,7 @@ class SingleOutputTask(task.Task):
         self.name + "_cls_ids": cls_ids,
         self.name + "_eid": eid,
         self.name + "_label_ids": label_ids,
+        self.name + "_class_weights": class_weights,
     }
     # self._add_features(features, example, log)
     return features
@@ -254,7 +259,8 @@ class ClassificationTask(SingleOutputTask):
   def get_feature_specs(self):
     return [feature_spec.FeatureSpec(self.name + "_eid", []),
             feature_spec.FeatureSpec(self.name + "_label_ids", [self.config.max_seq_length]),
-            feature_spec.FeatureSpec(self.name + "_cls_ids", [self.config.max_seq_length])]
+            feature_spec.FeatureSpec(self.name + "_cls_ids", [self.config.max_seq_length]),
+            feature_spec.FeatureSpec(self.name + "_class_weights", [2])]
 
   def _add_features(self, features, example, log):
     label_map = {}
@@ -320,9 +326,18 @@ class ClassificationTask(SingleOutputTask):
     # logits -> [batch_size, 2] -> [batch_size, ]
     # logits -> [batch_size, seq_length, 2] -> [batch_size, seq_length]
 
-    losses = tf.nn.softmax_cross_entropy_with_logits(
-        labels=tf.one_hot(label_ids, depth=num_labels, dtype=tf.float32, axis=-1),
-        logits=logits)
+    # your class weights
+    class_weights = features[self.name + "_class_weights"]
+    utils.log(class_weights)
+    onehot_labels = tf.one_hot(label_ids, depth=num_labels, dtype=tf.float32, axis=-1)
+    # deduce weights for batch samples based on their true label
+    weights = tf.reduce_sum(class_weights * onehot_labels, axis=1)
+    utils.log(weights)
+    # old is softmax_cross_entropy_with_logits
+    losses = tf.losses.softmax_cross_entropy(
+        onehot_labels=onehot_labels,
+        logits=logits,
+        weights=weights)
     utils.log(losses)
     # losses *= features[self.name + "_labels_mask"]
     utils.log(losses)
