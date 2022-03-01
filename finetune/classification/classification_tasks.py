@@ -309,7 +309,7 @@ class ClassificationTask(SingleOutputTask):
     utils.log(labels)
     # labels is vector of length 2, log_probs is tensor of shape [batch_size, 2]
     # losses = -tf.reduce_sum(labels * log_probs, axis=-1) -> [batch_size, ]
-    losses = -tf.reduce_sum(labels * log_probs)
+    losses = -tf.reduce_sum(labels * log_probs, axis=-1)
     utils.log(losses)
     # logits -> [batch_size, 2] -> [batch_size, ]
     # logits -> [batch_size, seq_length, 2] -> [batch_size, seq_length]
