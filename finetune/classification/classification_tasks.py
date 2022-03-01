@@ -331,13 +331,16 @@ class ClassificationTask(SingleOutputTask):
     utils.log(class_weights)
     onehot_labels = tf.one_hot(label_ids, depth=num_labels, dtype=tf.float32, axis=-1)
     # deduce weights for batch samples based on their true label
-    weights = tf.reduce_sum(tf.cast(class_weights, tf.float32) * onehot_labels, axis=-1)
-    utils.log(weights)
+    # weights = tf.reduce_sum(tf.cast(class_weights, tf.float32) * onehot_labels, axis=-1)
+    # utils.log(weights)
+    d2 = tf.constant([1, self.config.max_seq_length, 1])
+    class_weights_expand = tf.expand_dims(class_weights, 1)
+    tiled_class_weights_mask = tf.tile(class_weights_expand, d2)
     # old is softmax_cross_entropy_with_logits
     losses = tf.losses.softmax_cross_entropy(
         onehot_labels=onehot_labels,
         logits=logits,
-        weights=tf.cast(class_weights, tf.float32))
+        weights=tf.cast(tiled_class_weights_mask, tf.float32))
     utils.log(losses)
     # losses *= features[self.name + "_labels_mask"]
     losses = tf.reduce_sum(losses, axis=-1)
