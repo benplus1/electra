@@ -203,7 +203,6 @@ class ModelRunner(object):
       utils.log("______________________________------------------------______________________________")
       utils.log(r)
       utils.log()
-      utils.log(r[task.name])
       utils.log("______________________________------------------------______________________________")
       if r["task_id"] != len(self._tasks):  # ignore padding examples
         r = utils.nest_dict(r, self._config.task_names)

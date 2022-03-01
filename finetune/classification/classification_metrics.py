@@ -41,6 +41,7 @@ class SentenceLevelScorer(scorer.Scorer):
     self._preds = []
     self._cls_ids = []
     self._probabilities = []
+    self._logits = []
 
   def update(self, results):
     super(SentenceLevelScorer, self).update(results)
@@ -49,6 +50,8 @@ class SentenceLevelScorer(scorer.Scorer):
                              else results['targets'])
     self._preds.append(results['predictions'])
     self._cls_ids.append(results['cls_ids'])
+    self._probabilities.append(results['probabilities'])
+    self._logits.append(results['logits'])
     # self._cls_ids.append(results['cls_ids'])
 
   def get_loss(self):
