@@ -335,7 +335,7 @@ class ClassificationTask(SingleOutputTask):
         labels=onehot_labels,
         logits=logits)
     utils.log(losses)
-    losses = tf.reduce_sum(losses, axis=-1)
+    losses = tf.reduce_sum(losses * weights, axis=-1)
     utils.log("in this prediction module")
     utils.log("losses")
     utils.log(losses)
