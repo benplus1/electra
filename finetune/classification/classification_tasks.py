@@ -338,7 +338,7 @@ class ClassificationTask(SingleOutputTask):
     # tiled_class_weights_mask = tf.tile(class_weights_expand, d2)
     # utils.log(tiled_class_weights_mask)
     # old is softmax_cross_entropy_with_logits
-    unweighted_losses = tf.nn.softmax_cross_entropy_with_logits(onehot_labels, logits)
+    unweighted_losses = tf.nn.softmax_cross_entropy_with_logits(labels=onehot_labels, logits=logits)
     utils.log(unweighted_losses)
     # apply the weights, relying on broadcasting of the multiplication
     weighted_losses = unweighted_losses * class_weights
