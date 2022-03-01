@@ -341,7 +341,7 @@ class ClassificationTask(SingleOutputTask):
     unweighted_losses = tf.nn.softmax_cross_entropy_with_logits(labels=onehot_labels, logits=logits)
     utils.log(unweighted_losses)
     # apply the weights, relying on broadcasting of the multiplication
-    weighted_losses = unweighted_losses * class_weights
+    weighted_losses = unweighted_losses * tf.cast(class_weights, tf.float32)
     # reduce the result to get your final loss
     losses = tf.reduce_sum(weighted_losses, axis=-1)
     losses = tf.reduce_sum(losses, axis=-1)
