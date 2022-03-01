@@ -321,7 +321,7 @@ class ClassificationTask(SingleOutputTask):
     # utils.log(losses)
     # your class weights
     onehot_labels = tf.one_hot(label_ids, depth=num_labels, dtype=tf.float32, axis=-1)
-
+    utils.log(onehot_labels)
     class_weights = features[self.name + "_class_weights"]
     utils.log(class_weights)
     # deduce weights for batch samples based on their true label
