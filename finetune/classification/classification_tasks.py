@@ -333,22 +333,25 @@ class ClassificationTask(SingleOutputTask):
     # deduce weights for batch samples based on their true label
     # weights = tf.reduce_sum(tf.cast(class_weights, tf.float32) * onehot_labels, axis=-1)
     # utils.log(weights)
-    d2 = tf.constant([1, self.config.max_seq_length, 1])
-    class_weights_expand = tf.expand_dims(class_weights, 1)
-    tiled_class_weights_mask = tf.tile(class_weights_expand, d2)
-    utils.log(tiled_class_weights_mask)
+    # d2 = tf.constant([1, self.config.max_seq_length, 1])
+    # class_weights_expand = tf.expand_dims(class_weights, 1)
+    # tiled_class_weights_mask = tf.tile(class_weights_expand, d2)
+    # utils.log(tiled_class_weights_mask)
     # old is softmax_cross_entropy_with_logits
-    losses = tf.losses.softmax_cross_entropy(
-        onehot_labels=onehot_labels,
-        logits=logits,
-        weights=tf.cast(tiled_class_weights_mask, tf.float32))
-    utils.log(losses)
-    # losses *= features[self.name + "_labels_mask"]
-    losses = tf.reduce_sum(losses, axis=-1)
+    unweighted_losses = tf.nn.softmax_cross_entropy_with_logits(onehot_labels, logits)
+    utils.log(unweighted_losses)
+    # apply the weights, relying on broadcasting of the multiplication
+    weighted_losses = unweighted_losses * class_weights
+    # reduce the result to get your final loss
+    losses = tf.reduce_sum(weighted_losses, axis=-1)
+    # losses = tf.losses.softmax_cross_entropy(
+    #     onehot_labels=onehot_labels,
+    #     logits=logits,
+    #     weights=tf.cast(tiled_class_weights_mask, tf.float32))
     utils.log("in this prediction module")
     utils.log("losses")
     utils.log(losses)
-
+    # losses *= features[self.name + "_labels_mask"]
     redictions = tf.argmax(logits, axis=-1)
     robabilities = tf.nn.softmax(logits)
 
