@@ -337,7 +337,7 @@ class ClassificationTask(SingleOutputTask):
     losses = tf.losses.softmax_cross_entropy(
         onehot_labels=onehot_labels,
         logits=logits,
-        weights=weights)
+        weights=tf.cast(class_weights, tf.float32))
     utils.log(losses)
     # losses *= features[self.name + "_labels_mask"]
     losses = tf.reduce_sum(losses, axis=-1)
@@ -355,6 +355,7 @@ class ClassificationTask(SingleOutputTask):
         predictions=redictions,
         probabilities=robabilities,
         label_ids=label_ids,
+        weights=class_weights,
         cls_ids=features[self.name + "_cls_ids"],
         eid=features[self.name + "_eid"],
     )
