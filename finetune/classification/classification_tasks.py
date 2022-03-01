@@ -336,6 +336,7 @@ class ClassificationTask(SingleOutputTask):
     d2 = tf.constant([1, self.config.max_seq_length, 1])
     class_weights_expand = tf.expand_dims(class_weights, 1)
     tiled_class_weights_mask = tf.tile(class_weights_expand, d2)
+    utils.log(tiled_class_weights_mask)
     # old is softmax_cross_entropy_with_logits
     losses = tf.losses.softmax_cross_entropy(
         onehot_labels=onehot_labels,
