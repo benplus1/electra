@@ -142,7 +142,7 @@ class SingleOutputTask(task.Task):
       cls_ids.append(0)
       label_ids.append(0)
 
-    class_weights = [positive, negative]
+    class_weights = [positive / (positive + negative), negative / (positive + negative)]
     tokens.append("[SEP]")
     segment_ids.append(0)
     cls_ids.append(0)
@@ -322,7 +322,7 @@ class ClassificationTask(SingleOutputTask):
     # your class weights
     onehot_labels = tf.one_hot(label_ids, depth=num_labels, dtype=tf.float32, axis=-1)
     utils.log(onehot_labels)
-    
+
     class_weights = features[self.name + "_class_weights"]
     utils.log(class_weights)
     # deduce weights for batch samples based on their true label
