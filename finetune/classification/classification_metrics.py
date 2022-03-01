@@ -40,6 +40,7 @@ class SentenceLevelScorer(scorer.Scorer):
     self._true_labels = []
     self._preds = []
     self._cls_ids = []
+    self._probabilities = []
 
   def update(self, results):
     super(SentenceLevelScorer, self).update(results)
