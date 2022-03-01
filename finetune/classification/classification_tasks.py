@@ -142,7 +142,8 @@ class SingleOutputTask(task.Task):
       cls_ids.append(0)
       label_ids.append(0)
 
-    class_weights = [positive / (self.config.max_seq_length / 8), (self.config.max_seq_length - positive) / (self.config.max_seq_length / 8)]
+    total = self.config.max_seq_length / 8
+    class_weights = [positive / total, (total - positive) / total]
     tokens.append("[SEP]")
     segment_ids.append(0)
     cls_ids.append(0)
