@@ -142,7 +142,7 @@ class SingleOutputTask(task.Task):
       cls_ids.append(0)
       label_ids.append(0)
 
-    total = (positive + negative) / 2
+    total = (positive + negative) / 1.5
     class_weights = [positive / total, (total - positive) / total]
     tokens.append("[SEP]")
     segment_ids.append(0)
