@@ -125,7 +125,6 @@ class TaggingTask(task.Task):
 
   def featurize(self, example: TaggingExample, is_training, log=False):
     words_to_tokens = tokenize_and_align(self._tokenizer, example.words)
-    utils.log("inside featurize")
     input_ids = []
     tagged_positions = []
     for word_tokens in words_to_tokens:
@@ -210,7 +209,7 @@ class TaggingTask(task.Task):
     utils.log(reprs)
     logits = tf.layers.dense(reprs, n_classes)
     utils.log(logits)
-    utils.log(tf.one_hot(features[self.name + "_labels"]))
+    utils.log(tf.one_hot(features[self.name + "_labels"], n_classes))
     losses = tf.nn.softmax_cross_entropy_with_logits(
         labels=tf.one_hot(features[self.name + "_labels"], n_classes),
         logits=logits)
@@ -238,7 +237,6 @@ class TaggingTask(task.Task):
 def tokenize_and_align(tokenizer, words, cased=False):
   """Splits up words into subword-level tokens."""
   words = ["[CLS]"] + list(words) + ["[SEP]"]
-  utils.log("inside tokenize and align")
   basic_tokenizer = tokenizer.basic_tokenizer
   tokenized_words = []
   for word in words:
