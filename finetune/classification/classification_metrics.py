@@ -23,6 +23,8 @@ import abc
 import numpy as np
 import scipy
 import sklearn
+from util import utils
+
 
 from finetune import scorer
 
@@ -74,14 +76,18 @@ class F1Scorer(SentenceLevelScorer):
 
   def _get_results(self):
     n_correct, n_predicted, n_gold = 0, 0, 0
-    for y_true, pred, cls_id in zip(self._true_labels, self._preds, self._cls_ids):
-      if cls_id == 1: # cls_id good
-        if pred == self._positive_label:
-          n_gold += 1
+    for y_trues, preds, cls_ids in zip(self._true_labels, self._preds, self._cls_ids):
+      utils.log(y_trues)
+      utils.log(preds)
+      utils.log(cls_ids)
+      for y_true, pred, cls_id in zip(y_trues, preds, cls_ids):
+        if cls_id == 1: # cls_id good
           if pred == self._positive_label:
-            n_predicted += 1
-            if pred == y_true:
-              n_correct += 1
+            n_gold += 1
+            if pred == self._positive_label:
+              n_predicted += 1
+              if pred == y_true:
+                n_correct += 1
     if n_correct == 0:
       p, r, f1 = 0, 0, 0
     else:
