@@ -46,8 +46,7 @@ class SentenceLevelScorer(scorer.Scorer):
   def update(self, results):
     super(SentenceLevelScorer, self).update(results)
     self._total_loss += results['loss']
-    self._true_labels.append(results['label_ids'] if 'label_ids' in results
-                             else results['targets'])
+    self._true_labels.append(results['label_ids'])
     self._preds.append(results['predictions'])
     self._cls_ids.append(results['cls_ids'])
     self._probabilities.append(results['probabilities'])
@@ -81,9 +80,11 @@ class F1Scorer(SentenceLevelScorer):
   def _get_results(self):
     n_correct, n_predicted, n_gold = 0, 0, 0
     for y_trues, preds, cls_ids in zip(self._true_labels, self._preds, self._cls_ids):
+      utils.log("HERE")
       utils.log(y_trues)
       utils.log(preds)
       utils.log(cls_ids)
+      utils.log(self._probabilities)
       for y_true, pred, cls_id in zip(y_trues, preds, cls_ids):
         if cls_id == 1: # cls_id good
           if pred == self._positive_label:

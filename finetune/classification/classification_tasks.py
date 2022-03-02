@@ -224,11 +224,9 @@ class SingleOutputTask(task.Task):
               curr_cls_locs.append(j)
               if split=='train' and label == is_pos_tok:
                 self._positive += 1
-                actual_val = cor_tok 
               else:
                 self._negative += 1
-                actual_val = neg_tok
-              # actual_val = cor_tok if label == is_pos_tok else neg_tok
+              actual_val = cor_tok if label == is_pos_tok else neg_tok
               label = tokenization.convert_to_unicode(actual_val)
               curr_labels.append(label)
 
