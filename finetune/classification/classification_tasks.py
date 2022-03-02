@@ -36,12 +36,13 @@ import copy
 class InputExample(task.Example):
   """A single training/test example for simple sequence classification."""
 
-  def __init__(self, eid, task_name, text_a, labels=None, cls_locs=None):
+  def __init__(self, eid, task_name, text_a, labels=None, cls_locs=None, weights=None):
     super(InputExample, self).__init__(task_name)
     self.eid = eid
     self.text_a = text_a
     self.labels = labels # holds the correct labels according to the CLS ids
     self.cls_locs = cls_locs
+    self.weights = weights
 
 def read_txt(input_file, quotechar=None):
   """Reads a tab separated value file."""
@@ -142,8 +143,9 @@ class SingleOutputTask(task.Task):
       cls_ids.append(0)
       label_ids.append(0)
 
-    total = (positive + negative) * 1.000
-    class_weights = [positive / total, (total - positive) / total]
+    # total = (positive + negative) * 1.000
+    total = example.weights[0] + example.weights[1]
+    class_weights = [example.weights[0] / total, (total - example.weights[0]) / total]
     tokens.append("[SEP]")
     segment_ids.append(0)
     cls_ids.append(0)
@@ -201,6 +203,8 @@ class SingleOutputTask(task.Task):
     curr_labels = []
     curr_cls_locs = []
     curr_eid_i = 0
+    positive = 0
+    negative = 0
     for (i, line) in enumerate(lines):
       try:
         if (i % 4 == 0): # it's the text itself
@@ -217,13 +221,18 @@ class SingleOutputTask(task.Task):
           for (j, (start_statement, label)) in enumerate(zip(start_buf.split(), labels_buf.split())):
             if start_statement == is_state_tok:
               curr_cls_locs.append(j)
-              actual_val = cor_tok if label == is_pos_tok else neg_tok
+              if label == is_pos_tok:
+                positive += 1
+                actual_val = cor_tok 
+              else:
+                negative += 1
+                actual_val = neg_tok
+              # actual_val = cor_tok if label == is_pos_tok else neg_tok
               label = tokenization.convert_to_unicode(actual_val)
               curr_labels.append(label)
 
           # if len(text_a_buf) < 500:
-          examples.append(InputExample(eid=curr_eid_i, task_name=self.name,
-                                      text_a=copy.deepcopy(text_a_buf), labels=copy.deepcopy(curr_labels), cls_locs=copy.deepcopy(curr_cls_locs)))
+          examples.append((curr_eid_i, self.name, copy.deepcopy(text_a_buf), copy.deepcopy(curr_labels), copy.deepcopy(curr_cls_locs)))
           # clean buffers
           text_a_buf = ""
           curr_labels = []
@@ -233,6 +242,9 @@ class SingleOutputTask(task.Task):
         utils.log("Error constructing example from line", i,
                   "for task", self.name + ":", ex)
         utils.log("Input causing the error:", line)
+    output = []
+    for ex in examples:
+      output.append(InputExample(eid=ex[0], task_name=ex[1], text_a=ex[2], labels=ex[3], cls_locs=ex[4], weights=[positive, negative]))
     return examples
 
   @abc.abstractmethod
