@@ -244,7 +244,8 @@ class SingleOutputTask(task.Task):
               actual_val = cor_tok if label == is_pos_tok else neg_tok
               label = tokenization.convert_to_unicode(actual_val)
               curr_labels.append(label)
-
+          utils.log(len(text_a_buf))
+          utils.log(self.config.max_seq_length-2)
           if len(text_a_buf) < (self.config.max_seq_length-2):
             examples.append([curr_eid_i, self.name, copy.deepcopy(text_a_buf), copy.deepcopy(curr_labels), copy.deepcopy(curr_cls_locs)])
           # clean buffers
