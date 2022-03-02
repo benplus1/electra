@@ -232,7 +232,7 @@ class SingleOutputTask(task.Task):
               curr_labels.append(label)
 
           # if len(text_a_buf) < 500:
-          examples.append((curr_eid_i, self.name, copy.deepcopy(text_a_buf), copy.deepcopy(curr_labels), copy.deepcopy(curr_cls_locs)))
+          examples.append([curr_eid_i, self.name, copy.deepcopy(text_a_buf), copy.deepcopy(curr_labels), copy.deepcopy(curr_cls_locs)])
           # clean buffers
           text_a_buf = ""
           curr_labels = []
@@ -245,7 +245,7 @@ class SingleOutputTask(task.Task):
     output = []
     for ex in examples:
       output.append(InputExample(eid=ex[0], task_name=ex[1], text_a=ex[2], labels=ex[3], cls_locs=ex[4], weights=[positive, negative]))
-    return examples
+    return output
 
   @abc.abstractmethod
   def _get_dummy_label(self):
