@@ -225,9 +225,11 @@ class SingleOutputTask(task.Task):
       try:
         if (i % 4 == 0): # it's the text itself
           if (line == '\n'): # its the end of the file
-            return examples
+            break
           else:
+            utils.log(line)
             text_a_buf = tokenization.convert_to_unicode(line)
+            utils.log(text_a_buf)
         elif (i % 4 == 1): # its the start cls
           start_buf = line
         elif (i % 4 == 2): # its the labels
@@ -246,6 +248,7 @@ class SingleOutputTask(task.Task):
               curr_labels.append(label)
           utils.log(len(text_a_buf))
           utils.log(self.config.max_seq_length-2)
+          utils.log(text_a_buf)
           if len(text_a_buf) < (self.config.max_seq_length-2):
             examples.append([curr_eid_i, self.name, copy.deepcopy(text_a_buf), copy.deepcopy(curr_labels), copy.deepcopy(curr_cls_locs)])
           # clean buffers
