@@ -62,6 +62,8 @@ class SingleOutputTask(task.Task):
                tokenizer):
     super(SingleOutputTask, self).__init__(config, name)
     self._tokenizer = tokenizer
+    self._positive = 0
+    self._negative = 0
 
   def get_examples(self, split):
     # return self._create_examples(read_tsv(
@@ -203,8 +205,7 @@ class SingleOutputTask(task.Task):
     curr_labels = []
     curr_cls_locs = []
     curr_eid_i = 0
-    positive = 0
-    negative = 0
+    utils.log(split)
     for (i, line) in enumerate(lines):
       try:
         if (i % 4 == 0): # it's the text itself
@@ -221,11 +222,11 @@ class SingleOutputTask(task.Task):
           for (j, (start_statement, label)) in enumerate(zip(start_buf.split(), labels_buf.split())):
             if start_statement == is_state_tok:
               curr_cls_locs.append(j)
-              if label == is_pos_tok:
-                positive += 1
+              if split=='train' and label == is_pos_tok:
+                self._positive += 1
                 actual_val = cor_tok 
               else:
-                negative += 1
+                self._negative += 1
                 actual_val = neg_tok
               # actual_val = cor_tok if label == is_pos_tok else neg_tok
               label = tokenization.convert_to_unicode(actual_val)
@@ -244,7 +245,7 @@ class SingleOutputTask(task.Task):
         utils.log("Input causing the error:", line)
     output = []
     for ex in examples:
-      output.append(InputExample(eid=ex[0], task_name=ex[1], text_a=ex[2], labels=ex[3], cls_locs=ex[4], weights=[positive, negative]))
+      output.append(InputExample(eid=ex[0], task_name=ex[1], text_a=ex[2], labels=ex[3], cls_locs=ex[4], weights=[self._positive, self._negative]))
     return output
 
   @abc.abstractmethod
