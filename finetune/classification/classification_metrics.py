@@ -84,7 +84,8 @@ class F1Scorer(SentenceLevelScorer):
       utils.log(y_trues)
       utils.log(preds)
       utils.log(cls_ids)
-      utils.log(self._probabilities)
+      for i in self._probabilities:
+        utils.log(i)
       for y_true, pred, cls_id in zip(y_trues, preds, cls_ids):
         if cls_id == 1: # cls_id good
           if pred == self._positive_label:

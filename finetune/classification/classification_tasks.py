@@ -93,8 +93,8 @@ class SingleOutputTask(task.Task):
     #   _truncate_seq_pair(tokens_a, tokens_b, self.config.max_seq_length - 3)
     # else:
       # Account for [CLS] and [SEP] with "- cls_locs + 1"
-    if len(tokens_a) > self.config.max_seq_length - (len(example.cls_locs) + 1): # change from 2 to 3
-      tokens_a = tokens_a[0:(self.config.max_seq_length - (len(example.cls_locs) + 1))] # change from 2 to 3
+    # if len(tokens_a) > self.config.max_seq_length - (len(example.cls_locs) + 1): # change from 2 to 3
+    #   tokens_a = tokens_a[0:(self.config.max_seq_length - (len(example.cls_locs) + 1))] # change from 2 to 3
 
     # The convention in BERT is:
     # (a) For sequence pairs:
@@ -128,11 +128,23 @@ class SingleOutputTask(task.Task):
       label_map[label] = i
     negative = 0
     positive = 0
+
+    # tokens.append("[CLS]")
+    # segment_ids.append(0)
+    # cls_ids.append(0)
+    # label_ids.append(0)
+
     for (i, token) in enumerate(tokens_a):
       if i in ex_cls_locs:
-        tokens.append("[CLS]")
-        segment_ids.append(0)
+        # tokens.append("[CLS]")
+        # segment_ids.append(0)
         # cls_ids.append(len(tokens)-1)
+        if i == 0:
+          tokens.append("[CLS]")
+          segment_ids.append(0)
+          cls_ids.append(0)
+          label_ids.append(0)
+
         cls_ids.append(1)
         if ex_labels[ex_cls_locs.index(i)] == '0':
           label_ids.append(0)
@@ -140,10 +152,13 @@ class SingleOutputTask(task.Task):
         else:
           label_ids.append(1)
           positive += 1
+      else:
+        cls_ids.append(0)
+        label_ids.append(0)
       tokens.append(token)
       segment_ids.append(0)
-      cls_ids.append(0)
-      label_ids.append(0)
+      # cls_ids.append(0)
+      # label_ids.append(0)
 
     # total = (positive + negative) * 1.000
     total = example.weights[0] + example.weights[1]
@@ -230,8 +245,8 @@ class SingleOutputTask(task.Task):
               label = tokenization.convert_to_unicode(actual_val)
               curr_labels.append(label)
 
-          # if len(text_a_buf) < 500:
-          examples.append([curr_eid_i, self.name, copy.deepcopy(text_a_buf), copy.deepcopy(curr_labels), copy.deepcopy(curr_cls_locs)])
+          if len(text_a_buf) < (self.config.max_seq_length-2):
+            examples.append([curr_eid_i, self.name, copy.deepcopy(text_a_buf), copy.deepcopy(curr_labels), copy.deepcopy(curr_cls_locs)])
           # clean buffers
           text_a_buf = ""
           curr_labels = []
