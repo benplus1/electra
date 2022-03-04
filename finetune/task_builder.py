@@ -43,7 +43,7 @@ def get_task(config: configure_finetuning.FinetuningConfig, task_name,
   # elif task_name == "mnli":
   #   return classification_tasks.MNLI(config, tokenizer)
   # if task_name == "sst":
-  return classification_tasks.SST(config, tokenizer)
+  return classification_tasks.SST(config, task_name, tokenizer)
   # elif task_name == "rte":
   #   return classification_tasks.RTE(config, tokenizer)
   # elif task_name == "qnli":

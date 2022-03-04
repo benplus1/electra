@@ -407,8 +407,8 @@ class ClassificationTask(SingleOutputTask):
 class SST(ClassificationTask):
   """Stanford Sentiment Treebank."""
 
-  def __init__(self, config: configure_finetuning.FinetuningConfig, tokenizer):
-    super(SST, self).__init__(config, "sst", tokenizer, ["0", "1"])
+  def __init__(self, config: configure_finetuning.FinetuningConfig, task_name, tokenizer):
+    super(SST, self).__init__(config, task_name, tokenizer, ["0", "1"])
 
   def _create_examples(self, lines, split):
     if "test" in split:
