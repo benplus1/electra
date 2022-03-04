@@ -45,6 +45,8 @@ class Preprocessor(object):
         spec.name: spec.get_parsing_spec()
         for spec in self._feature_specs
     }
+    utils.log(self._name_to_feature_config)
+    utils.log(self._feature_specs)
     assert len(self._name_to_feature_config) == len(self._feature_specs)
 
   def prepare_train(self):
