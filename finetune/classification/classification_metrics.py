@@ -97,8 +97,8 @@ class F1Scorer(SentenceLevelScorer):
     if n_correct == 0:
       p, r, f1 = 0, 0, 0
     else:
-      p = 100.0 * n_correct / n_predicted
-      r = 100.0 * n_correct / n_gold
+      p = n_correct / n_predicted
+      r = n_correct / n_gold
       f1 = 2 * p * r / (p + r)
     return [
         ('precision', p),
