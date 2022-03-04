@@ -250,7 +250,7 @@ def write_results(config: configure_finetuning.FinetuningConfig, results):
       for task_name, task_results in trial_results.items():
         if task_name == "time" or task_name == "global_step":
           continue
-        results_str += task_name + ": " + " - ".join(
+        results_str += task_name + ": " + " \n ".join(
             ["{:}: {:.2f}".format(k, v)
              for k, v in task_results.items()]) + "\n"
     f.write(results_str)
