@@ -264,8 +264,8 @@ class SingleOutputTask(task.Task):
     for (i, ex) in enumerate(examples):
       tokens_a = self._tokenizer.tokenize(ex[2])
       utils.log()
-      utils.log(text_a_buf)
-      utils.log(len(text_a_buf))
+      utils.log(ex[2])
+      utils.log(len(ex[2]))
       utils.log(self.config.max_seq_length-2)
       utils.log(tokens_a)
       utils.log(len(tokens_a))
