@@ -133,7 +133,7 @@ class SingleOutputTask(task.Task):
     # label_ids.append(0)
     offset = 0
     last_token = ''
-    possible_chars = "~`!@#$%^&*()_+-=\|}{;'\":/.,<>?"
+    possible_chars = "~`!@#$%^&*_+-=\|}{;'\":/.,<>?"
     for (i, token) in enumerate(tokens_a):
       if token[:2] == "##" or (last_token in possible_chars and token in possible_chars):
         offset += 1
