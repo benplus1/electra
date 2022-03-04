@@ -126,8 +126,6 @@ class SingleOutputTask(task.Task):
     label_map = {}
     for (i, label) in enumerate(self._label_list):
       label_map[label] = i
-    negative = 0
-    positive = 0
 
     # tokens.append("[CLS]")
     # segment_ids.append(0)
@@ -140,7 +138,6 @@ class SingleOutputTask(task.Task):
         offset += 1
         cls_ids.append(0)
         label_ids.append(0)
-        negative += 1
       elif (i - offset) in ex_cls_locs:
         # tokens.append("[CLS]")
         # segment_ids.append(0)
@@ -154,10 +151,8 @@ class SingleOutputTask(task.Task):
         cls_ids.append(1)
         if ex_labels[ex_cls_locs.index((i - offset))] == '0':
           label_ids.append(0)
-          negative += 1
         else:
           label_ids.append(1)
-          positive += 1
       else:
         cls_ids.append(0)
         label_ids.append(0)
@@ -197,6 +192,7 @@ class SingleOutputTask(task.Task):
       utils.log("    segment_ids: {:}".format(" ".join(map(str, segment_ids))))
       utils.log("    cls_ids: {:}".format(" ".join(map(str, cls_ids))))
       utils.log("    labels: {:} (id = {:})".format(example.labels, label_ids))
+      utils.log("    weights: {:}".format(class_weights))
       utils.log(self.config.max_seq_length)
     assert len(input_ids) == self.config.max_seq_length
     assert len(input_mask) == self.config.max_seq_length
