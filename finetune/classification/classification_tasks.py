@@ -233,7 +233,6 @@ class SingleOutputTask(task.Task):
             break
           else:
             text_a_buf = tokenization.convert_to_unicode(line)
-            utils.log(text_a_buf)
         elif (i % 4 == 1): # its the start cls
           start_buf = line
         elif (i % 4 == 2): # its the labels
@@ -250,11 +249,8 @@ class SingleOutputTask(task.Task):
               actual_val = cor_tok if label == is_pos_tok else neg_tok
               label = tokenization.convert_to_unicode(actual_val)
               curr_labels.append(label)
-          utils.log(len(text_a_buf))
-          utils.log(self.config.max_seq_length-2)
-          utils.log(text_a_buf)
-          if len(text_a_buf.split()) < (self.config.max_seq_length-2):
-            examples.append([curr_eid_i, self.name, copy.deepcopy(text_a_buf), copy.deepcopy(curr_labels), copy.deepcopy(curr_cls_locs)])
+          # if len(text_a_buf.split()) < (self.config.max_seq_length-2):
+          examples.append([curr_eid_i, self.name, copy.deepcopy(text_a_buf), copy.deepcopy(curr_labels), copy.deepcopy(curr_cls_locs)])
           # clean buffers
           text_a_buf = ""
           curr_labels = []
@@ -267,7 +263,14 @@ class SingleOutputTask(task.Task):
     output = []
     offset = 0
     for (i, ex) in enumerate(examples):
-      tokens_a = self._tokenizer.tokenize(ex[0])
+      tokens_a = self._tokenizer.tokenize(ex[2])
+      utils.log()
+      utils.log(text_a_buf)
+      utils.log(len(text_a_buf))
+      utils.log(self.config.max_seq_length-2)
+      utils.log(tokens_a)
+      utils.log(len(tokens_a))
+      utils.log()
       if len(tokens_a) < (self.config.max_seq_length-2):
         output.append(InputExample(eid=i-offset, task_name=ex[1], text_a=ex[2], labels=ex[3], cls_locs=ex[4], weights=[self._positive, self._negative]))
       else:
