@@ -136,7 +136,6 @@ class SingleOutputTask(task.Task):
     possible_chars = "!+=-*"
     for (i, token) in enumerate(tokens_a):
       if token[:2] == "##" or (last_token in possible_chars and token in possible_chars):
-        utils.log("its a subword")
         offset += 1
         cls_ids.append(0)
         label_ids.append(0)
