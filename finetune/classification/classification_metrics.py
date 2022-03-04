@@ -45,6 +45,7 @@ class SentenceLevelScorer(scorer.Scorer):
 
   def update(self, results):
     super(SentenceLevelScorer, self).update(results)
+    utils.log(results)
     self._total_loss += results['loss']
     self._true_labels.append(results['label_ids'])
     self._preds.append(results['predictions'])
