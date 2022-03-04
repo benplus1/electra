@@ -132,8 +132,10 @@ class SingleOutputTask(task.Task):
     # cls_ids.append(0)
     # label_ids.append(0)
     offset = 0
+    last_token = ''
+    possible_chars = "!+=-*"
     for (i, token) in enumerate(tokens_a):
-      if token[:2] == "##":
+      if token[:2] == "##" or (last_token in possible_chars and token in possible_chars):
         utils.log("its a subword")
         offset += 1
         cls_ids.append(0)
@@ -156,6 +158,7 @@ class SingleOutputTask(task.Task):
       else:
         cls_ids.append(0)
         label_ids.append(0)
+      last_token = token
       tokens.append(token)
       segment_ids.append(0)
       # cls_ids.append(0)
