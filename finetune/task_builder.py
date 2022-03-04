@@ -42,8 +42,8 @@ def get_task(config: configure_finetuning.FinetuningConfig, task_name,
   #   return classification_tasks.MRPC(config, tokenizer)
   # elif task_name == "mnli":
   #   return classification_tasks.MNLI(config, tokenizer)
-  if task_name == "sst":
-    return classification_tasks.SST(config, tokenizer)
+  # if task_name == "sst":
+  return classification_tasks.SST(config, tokenizer)
   # elif task_name == "rte":
   #   return classification_tasks.RTE(config, tokenizer)
   # elif task_name == "qnli":
@@ -52,19 +52,19 @@ def get_task(config: configure_finetuning.FinetuningConfig, task_name,
   #   return classification_tasks.QQP(config, tokenizer)
   # elif task_name == "sts":
   #   return classification_tasks.STS(config, tokenizer)
-  elif task_name == "squad":
-    return qa_tasks.SQuAD(config, tokenizer)
-  elif task_name == "squadv1":
-    return qa_tasks.SQuADv1(config, tokenizer)
-  elif task_name == "newsqa":
-    return qa_tasks.NewsQA(config, tokenizer)
-  elif task_name == "naturalqs":
-    return qa_tasks.NaturalQuestions(config, tokenizer)
-  elif task_name == "triviaqa":
-    return qa_tasks.TriviaQA(config, tokenizer)
-  elif task_name == "searchqa":
-    return qa_tasks.SearchQA(config, tokenizer)
-  elif task_name == "chunk":
-    return tagging_tasks.Chunking(config, tokenizer)
-  else:
-    raise ValueError("Unknown task " + task_name)
+  # elif task_name == "squad":
+  #   return qa_tasks.SQuAD(config, tokenizer)
+  # elif task_name == "squadv1":
+  #   return qa_tasks.SQuADv1(config, tokenizer)
+  # elif task_name == "newsqa":
+  #   return qa_tasks.NewsQA(config, tokenizer)
+  # elif task_name == "naturalqs":
+  #   return qa_tasks.NaturalQuestions(config, tokenizer)
+  # elif task_name == "triviaqa":
+  #   return qa_tasks.TriviaQA(config, tokenizer)
+  # elif task_name == "searchqa":
+  #   return qa_tasks.SearchQA(config, tokenizer)
+  # elif task_name == "chunk":
+  #   return tagging_tasks.Chunking(config, tokenizer)
+  # else:
+  #   raise ValueError("Unknown task " + task_name)
