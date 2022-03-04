@@ -23,6 +23,8 @@ import argparse
 import collections
 import json
 
+from attr import validate
+
 import tensorflow.compat.v1 as tf
 
 import configure_finetuning
@@ -245,15 +247,26 @@ def write_results(config: configure_finetuning.FinetuningConfig, results):
   utils.mkdir(config.results_txt.rsplit("/", 1)[0])
   utils.write_pickle(results, config.results_pkl)
   with tf.io.gfile.GFile(config.results_txt, "w") as f:
-    results_str = ""
+    # results_str = ""
     for trial_results in results:
       for task_name, task_results in trial_results.items():
         if task_name == "time" or task_name == "global_step":
           continue
-        results_str += task_name + ": " + " \n ".join(
-            ["{:}: {:.2f}".format(k, v)
-             for k, v in task_results.items()]) + "\n"
-    f.write(results_str)
+        for k, v in task_results.items():
+          if type(v) == list:
+            f.write(k)
+            f.write('\n')
+            f.write(''.join(str(e) for e in v))
+            f.write('\n\n')
+          else:
+            f.write(k)
+            f.write('\n')
+            f.write(str(v))
+            f.write('\n\n')
+        # results_str += task_name + ": " + " \n ".join(
+        #     ["{:}: {:.2f}".format(k, v)
+        #      for k, v in task_results.items()]) + "\n"
+    # f.write(results_str)
   utils.write_pickle(results, config.results_pkl)
 
 
