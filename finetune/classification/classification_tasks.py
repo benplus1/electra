@@ -133,20 +133,26 @@ class SingleOutputTask(task.Task):
     # segment_ids.append(0)
     # cls_ids.append(0)
     # label_ids.append(0)
-
+    offset = 0
     for (i, token) in enumerate(tokens_a):
-      if i in ex_cls_locs:
+      if token[:2] == "##":
+        utils.log("its a subword")
+        offset += 1
+        cls_ids.append(0)
+        label_ids.append(0)
+        negative += 1
+      elif (i - offset) in ex_cls_locs:
         # tokens.append("[CLS]")
         # segment_ids.append(0)
         # cls_ids.append(len(tokens)-1)
-        if i == 0:
+        if (i - offset) == 0:
           tokens.append("[CLS]")
           segment_ids.append(0)
           cls_ids.append(0)
           label_ids.append(0)
 
         cls_ids.append(1)
-        if ex_labels[ex_cls_locs.index(i)] == '0':
+        if ex_labels[ex_cls_locs.index((i - offset))] == '0':
           label_ids.append(0)
           negative += 1
         else:
@@ -227,7 +233,6 @@ class SingleOutputTask(task.Task):
           if (line == '\n'): # its the end of the file
             break
           else:
-            utils.log(line)
             text_a_buf = tokenization.convert_to_unicode(line)
             utils.log(text_a_buf)
         elif (i % 4 == 1): # its the start cls
