@@ -105,6 +105,11 @@ class F1Scorer(SentenceLevelScorer):
         ('recall', r),
         ('f1', f1),
         ('loss', self.get_loss()),
+        ('labels', self._true_labels),
+        ('probabilities', self._probabilities),
+        ('preds', self._preds),
+        ('cls_ids', self._cls_ids),
+        ('logits', self._logits),
     ]
 
 
