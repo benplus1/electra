@@ -262,8 +262,13 @@ class SingleOutputTask(task.Task):
                   "for task", self.name + ":", ex)
         utils.log("Input causing the error:", line)
     output = []
-    for ex in examples:
-      output.append(InputExample(eid=ex[0], task_name=ex[1], text_a=ex[2], labels=ex[3], cls_locs=ex[4], weights=[self._positive, self._negative]))
+    offset = 0
+    for (i, ex) in enumerate(examples):
+      tokens_a = self._tokenizer.tokenize(ex[0])
+      if len(tokens_a) < (self.config.max_seq_length-2):
+        output.append(InputExample(eid=i-offset, task_name=ex[1], text_a=ex[2], labels=ex[3], cls_locs=ex[4], weights=[self._positive, self._negative]))
+      else:
+        offset += 1
     return output
 
   @abc.abstractmethod
