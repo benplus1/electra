@@ -4,7 +4,7 @@
 	"vocab_size": 32000,
 	"do_lower_case": false,
 	"use_tpu": "True",
-	"tpu_name": "electra-tpu",
+	"tpu_name": "electra-tpu-1",
 	"num_tpu_cores": 8,
 	"electra_objective": true,
 	"max_seq_length": 1024
