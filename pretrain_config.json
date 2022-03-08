@@ -6,4 +6,5 @@
 	"use_tpu": "True",
 	"tpu_name": "electra-tpu",
 	"num_tpu_cores": 8,
+	"electra_objective": true,
 }
