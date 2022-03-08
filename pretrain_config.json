@@ -6,5 +6,6 @@
 	"use_tpu": "True",
 	"tpu_name": "electra-tpu",
 	"num_tpu_cores": 8,
-	"electra_objective": true
+	"electra_objective": true,
+	"max_seq_length": 1024
 }
