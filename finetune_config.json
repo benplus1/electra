@@ -1,0 +1,18 @@
+{
+	"debug": false,
+	"model_size": "small",
+	"vocab_size": 16000,
+	"do_lower_case": false,
+	"use_tpu": "True",
+	"tpu_name": "electra-tpu",
+	"num_tpu_cores": 8,
+	"task_names": ["Time_12", "Time_5"],
+	"num_train_epochs": 10.0,
+	"log_examples": true,
+	"write_test_outputs": false,
+	"do_train": true,
+	"train_batch_size": 8,
+	"eval_batch_size": 8,
+	"predict_batch_size": 8,
+	"max_seq_length": 256
+}
