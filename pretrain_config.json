@@ -1,6 +1,6 @@
 {
 	"debug": false,
-	"model_size": "large",
+	"model_size": "base",
 	"vocab_size": 32000,
 	"do_lower_case": false,
 	"use_tpu": "True",
