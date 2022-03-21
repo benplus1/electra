@@ -6,5 +6,6 @@
 	"use_tpu": "True",
 	"tpu_name": "electra-tpu-2",
 	"num_tpu_cores": 8,
-	"electra_objective": false
+	"electra_objective": false,
+	"num_train_steps": 200000
 }
