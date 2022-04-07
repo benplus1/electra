@@ -4,7 +4,6 @@
 	"vocab_size": 32000,
 	"do_lower_case": false,
 	"use_tpu": "false",
-	"num_tpu_cores": 8,
 	"electra_objective": false,
-	"num_train_steps": 200000
+	"num_train_steps": 20
 }
