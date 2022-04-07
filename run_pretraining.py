@@ -58,32 +58,32 @@ class PretrainingModel(object):
         self._bert_config.hidden_size if config.embedding_size is None else
         config.embedding_size)
     cloze_output = None
-    if config.uniform_generator:
-      # simple generator sampling fakes uniformly at random
-      mlm_output = self._get_masked_lm_output(masked_inputs, None)
-    elif ((config.electra_objective or config.electric_objective)
+    # if config.uniform_generator:
+    #   # simple generator sampling fakes uniformly at random
+    #   mlm_output = self._get_masked_lm_output(masked_inputs, None)
+    if ((config.electra_objective or config.electric_objective)
           and config.untied_generator):
       generator_config = get_generator_config(config, self._bert_config)
-      if config.two_tower_generator:
-        # two-tower cloze model generator used for electric
-        generator = TwoTowerClozeTransformer(
-            config, generator_config, unmasked_inputs, is_training,
-            embedding_size)
-        cloze_output = self._get_cloze_outputs(unmasked_inputs, generator)
-        mlm_output = get_softmax_output(
-            pretrain_helpers.gather_positions(
-                cloze_output.logits, masked_inputs.masked_lm_positions),
-            masked_inputs.masked_lm_ids, masked_inputs.masked_lm_weights,
-            self._bert_config.vocab_size)
-      else:
+      # if config.two_tower_generator:
+      #   # two-tower cloze model generator used for electric
+      #   generator = TwoTowerClozeTransformer(
+      #       config, generator_config, unmasked_inputs, is_training,
+      #       embedding_size)
+      #   cloze_output = self._get_cloze_outputs(unmasked_inputs, generator)
+      #   mlm_output = get_softmax_output(
+      #       pretrain_helpers.gather_positions(
+      #           cloze_output.logits, masked_inputs.masked_lm_positions),
+      #       masked_inputs.masked_lm_ids, masked_inputs.masked_lm_weights,
+      #       self._bert_config.vocab_size)
+      # else:
         # small masked language model generator
-        generator = build_transformer(
-            config, masked_inputs, is_training, generator_config,
-            embedding_size=(None if config.untied_generator_embeddings
-                            else embedding_size),
-            untied_embeddings=config.untied_generator_embeddings,
-            scope="generator")
-        mlm_output = self._get_masked_lm_output(masked_inputs, generator)
+      generator = build_transformer(
+          config, masked_inputs, is_training, generator_config,
+          embedding_size=(None if config.untied_generator_embeddings
+                          else embedding_size),
+          untied_embeddings=config.untied_generator_embeddings,
+          scope="generator")
+      mlm_output = self._get_masked_lm_output(masked_inputs, generator)
     else:
       # full-sized masked language model generator if using BERT objective or if
       # the generator and discriminator have tied weights
@@ -285,34 +285,34 @@ def get_softmax_output(logits, targets, weights, vocab_size):
       loss=loss, preds=preds, weights=weights)
 
 
-class TwoTowerClozeTransformer(object):
-  """Build a two-tower Transformer used as Electric's generator."""
+# class TwoTowerClozeTransformer(object):
+#   """Build a two-tower Transformer used as Electric's generator."""
 
-  def __init__(self, config, bert_config, inputs: pretrain_data.Inputs,
-               is_training, embedding_size):
-    ltr = build_transformer(
-        config, inputs, is_training, bert_config,
-        untied_embeddings=config.untied_generator_embeddings,
-        embedding_size=(None if config.untied_generator_embeddings
-                        else embedding_size),
-        scope="generator_ltr", ltr=True)
-    rtl = build_transformer(
-        config, inputs, is_training, bert_config,
-        untied_embeddings=config.untied_generator_embeddings,
-        embedding_size=(None if config.untied_generator_embeddings
-                        else embedding_size),
-        scope="generator_rtl", rtl=True)
-    ltr_reprs = ltr.get_sequence_output()
-    rtl_reprs = rtl.get_sequence_output()
-    self._sequence_output = tf.concat([roll(ltr_reprs, -1),
-                                       roll(rtl_reprs, 1)], -1)
-    self._embedding_table = ltr.embedding_table
+#   def __init__(self, config, bert_config, inputs: pretrain_data.Inputs,
+#                is_training, embedding_size):
+#     ltr = build_transformer(
+#         config, inputs, is_training, bert_config,
+#         untied_embeddings=config.untied_generator_embeddings,
+#         embedding_size=(None if config.untied_generator_embeddings
+#                         else embedding_size),
+#         scope="generator_ltr", ltr=True)
+#     rtl = build_transformer(
+#         config, inputs, is_training, bert_config,
+#         untied_embeddings=config.untied_generator_embeddings,
+#         embedding_size=(None if config.untied_generator_embeddings
+#                         else embedding_size),
+#         scope="generator_rtl", rtl=True)
+#     ltr_reprs = ltr.get_sequence_output()
+#     rtl_reprs = rtl.get_sequence_output()
+#     self._sequence_output = tf.concat([roll(ltr_reprs, -1),
+#                                        roll(rtl_reprs, 1)], -1)
+#     self._embedding_table = ltr.embedding_table
 
-  def get_sequence_output(self):
-    return self._sequence_output
+#   def get_sequence_output(self):
+#     return self._sequence_output
 
-  def get_embedding_table(self):
-    return self._embedding_table
+#   def get_embedding_table(self):
+#     return self._embedding_table
 
 
 def build_transformer(config: configure_pretraining.PretrainingConfig,

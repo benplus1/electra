@@ -1,0 +1,11 @@
+{
+	"model_size": "base",
+	"vocab_size": 32000,
+	"do_lower_case": false,
+	"use_tpu": "True",
+	"tpu_name": "electra-tpu-22",
+	"num_tpu_cores": 8,
+	"electra_objective": false,
+    "do_train": false,
+    "do_eval": true
+}
