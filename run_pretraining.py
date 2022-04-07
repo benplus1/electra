@@ -164,18 +164,18 @@ class PretrainingModel(object):
   def _get_masked_lm_output(self, inputs: pretrain_data.Inputs, model):
     """Masked language modeling softmax layer."""
     with tf.variable_scope("generator_predictions"):
-      if self._config.uniform_generator:
-        logits = tf.zeros(self._bert_config.vocab_size)
-        logits_tiled = tf.zeros(
-            modeling.get_shape_list(inputs.masked_lm_ids) +
-            [self._bert_config.vocab_size])
-        logits_tiled += tf.reshape(logits, [1, 1, self._bert_config.vocab_size])
-        logits = logits_tiled
-      else:
-        relevant_reprs = pretrain_helpers.gather_positions(
-            model.get_sequence_output(), inputs.masked_lm_positions)
-        logits = get_token_logits(
-            relevant_reprs, model.get_embedding_table(), self._bert_config)
+      # if self._config.uniform_generator:
+      #   logits = tf.zeros(self._bert_config.vocab_size)
+      #   logits_tiled = tf.zeros(
+      #       modeling.get_shape_list(inputs.masked_lm_ids) +
+      #       [self._bert_config.vocab_size])
+      #   logits_tiled += tf.reshape(logits, [1, 1, self._bert_config.vocab_size])
+      #   logits = logits_tiled
+      # else:
+      relevant_reprs = pretrain_helpers.gather_positions(
+          model.get_sequence_output(), inputs.masked_lm_positions)
+      logits = get_token_logits(
+          relevant_reprs, model.get_embedding_table(), self._bert_config)
       return get_softmax_output(
           logits, inputs.masked_lm_ids, inputs.masked_lm_weights,
           self._bert_config.vocab_size)
@@ -191,14 +191,14 @@ class PretrainingModel(object):
           kernel_initializer=modeling.create_initializer(
               self._bert_config.initializer_range))
       logits = tf.squeeze(tf.layers.dense(hidden, units=1), -1)
-      if self._config.electric_objective:
-        log_q = tf.reduce_sum(
-            tf.nn.log_softmax(cloze_output.logits) * tf.one_hot(
-                inputs.input_ids, depth=self._bert_config.vocab_size,
-                dtype=tf.float32), -1)
-        log_q = tf.stop_gradient(log_q)
-        logits += log_q
-        logits += tf.log(self._config.mask_prob / (1 - self._config.mask_prob))
+      # if self._config.electric_objective:
+      #   log_q = tf.reduce_sum(
+      #       tf.nn.log_softmax(cloze_output.logits) * tf.one_hot(
+      #           inputs.input_ids, depth=self._bert_config.vocab_size,
+      #           dtype=tf.float32), -1)
+      #   log_q = tf.stop_gradient(log_q)
+      #   logits += log_q
+      #   logits += tf.log(self._config.mask_prob / (1 - self._config.mask_prob))
 
       weights = tf.cast(inputs.input_mask, tf.float32)
       labelsf = tf.cast(labels, tf.float32)
@@ -228,11 +228,12 @@ class PretrainingModel(object):
     sampled_tokids = tf.argmax(sampled_tokens, -1, output_type=tf.int32)
     updated_input_ids, masked = pretrain_helpers.scatter_update(
         inputs.input_ids, sampled_tokids, inputs.masked_lm_positions)
-    if self._config.electric_objective:
-      labels = masked
-    else:
-      labels = masked * (1 - tf.cast(
-          tf.equal(updated_input_ids, inputs.input_ids), tf.int32))
+    # if self._config.electric_objective:
+    #   labels = masked
+    # else:
+    labels = masked * (1 - tf.cast(
+        tf.equal(updated_input_ids, inputs.input_ids), tf.int32))
+        
     updated_inputs = pretrain_data.get_updated_inputs(
         inputs, input_ids=updated_input_ids)
     FakedData = collections.namedtuple("FakedData", [
@@ -240,15 +241,15 @@ class PretrainingModel(object):
     return FakedData(inputs=updated_inputs, is_fake_tokens=labels,
                      sampled_tokens=sampled_tokens)
 
-  def _get_cloze_outputs(self, inputs: pretrain_data.Inputs, model):
-    """Cloze model softmax layer."""
-    weights = tf.cast(pretrain_helpers.get_candidates_mask(
-        self._config, inputs), tf.float32)
-    with tf.variable_scope("cloze_predictions"):
-      logits = get_token_logits(model.get_sequence_output(),
-                                model.get_embedding_table(), self._bert_config)
-      return get_softmax_output(logits, inputs.input_ids, weights,
-                                self._bert_config.vocab_size)
+  # def _get_cloze_outputs(self, inputs: pretrain_data.Inputs, model):
+  #   """Cloze model softmax layer."""
+  #   weights = tf.cast(pretrain_helpers.get_candidates_mask(
+  #       self._config, inputs), tf.float32)
+  #   with tf.variable_scope("cloze_predictions"):
+  #     logits = get_token_logits(model.get_sequence_output(),
+  #                               model.get_embedding_table(), self._bert_config)
+  #     return get_softmax_output(logits, inputs.input_ids, weights,
+  #                               self._bert_config.vocab_size)
 
 
 def get_token_logits(input_reprs, embedding_table, bert_config):
