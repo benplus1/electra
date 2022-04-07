@@ -174,6 +174,7 @@ def write_examples(job_id, args):
       blanks_separate_docs=args.blanks_separate_docs,
       do_lower_case=args.do_lower_case,
       strip_accents=args.strip_accents,
+      num_out_files=args.num_out_files,
   )
   log("Writing tf examples")
   fnames = sorted(tf.io.gfile.listdir(args.corpus_dir))
@@ -208,6 +209,8 @@ def main():
                       help="Parallelize across multiple processes.")
   parser.add_argument("--blanks-separate-docs", default=True, type=bool,
                       help="Whether blank lines indicate document boundaries.")
+  parser.add_argument("--num_out_files", default=1000, type=int,
+                      help="Number of output files.")
 
   # toggle lower-case
   parser.add_argument("--do-lower-case", dest='do_lower_case',
