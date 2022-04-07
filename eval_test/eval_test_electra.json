@@ -7,5 +7,6 @@
 	"num_tpu_cores": 8,
 	"electra_objective": true,
     "do_train": false,
-    "do_eval": true
+    "do_eval": true,
+	"pretrain_tfrecords": "eval_test/eval_tfrecords/"
 }
