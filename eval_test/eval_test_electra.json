@@ -8,5 +8,7 @@
 	"electra_objective": true,
     "do_train": false,
     "do_eval": true,
-	"pretrain_tfrecords": "eval_test/eval_tfrecords/"
+	"pretrain_tfrecords": "eval_test/eval_tfrecords/",
+	"num_eval_steps": 1,
+	"iterations_per_loop": 1
 }
