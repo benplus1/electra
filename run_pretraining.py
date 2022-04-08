@@ -133,12 +133,12 @@ class PretrainingModel(object):
     ###
     print_tensors = dict()
     print_tensors["input_ids"] = masked_inputs.input_ids
-    print_tensors["masked_lm_preds"] = mlm_output.preds
-    print_tensors["mlm_loss"] = mlm_output.per_example_loss
-    print_tensors["masked_lm_ids"] = masked_inputs.masked_lm_ids
-    print_tensors["masked_lm_weights"] = masked_inputs.masked_lm_weights
-    print_tensors["input_mask"] = masked_inputs.input_mask
-    print_tensors["masked_lm_positions"] = masked_inputs.masked_lm_positions
+    # print_tensors["masked_lm_preds"] = mlm_output.preds
+    # print_tensors["mlm_loss"] = mlm_output.per_example_loss
+    # print_tensors["masked_lm_ids"] = masked_inputs.masked_lm_ids
+    # print_tensors["masked_lm_weights"] = masked_inputs.masked_lm_weights
+    # print_tensors["input_mask"] = masked_inputs.input_mask
+    # print_tensors["masked_lm_positions"] = masked_inputs.masked_lm_positions
     if config.electra_objective:
       print_tensors["updated_fake_inputs"] = fake_data.inputs
       print_tensors["is_fake_tokens"] = fake_data.is_fake_tokens
@@ -420,6 +420,7 @@ def model_fn_builder(config: configure_pretraining.PretrainingConfig):
               config.use_tpu)]
       )
     elif mode == tf.estimator.ModeKeys.EVAL:
+      ## 
       hook = tf.estimator.LoggingTensorHook(model.print_tensors, at_end=True)
       output_spec = tf.estimator.tpu.TPUEstimatorSpec(
           mode=mode,
