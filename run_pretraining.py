@@ -127,7 +127,6 @@ class PretrainingModel(object):
       })
     eval_fn_keys = eval_fn_inputs.keys()
     eval_fn_values = [eval_fn_inputs[k] for k in eval_fn_keys]
-    utils.log(eval_fn_values)
 
     def metric_fn(*args):
       """Computes the loss and accuracy of the model."""
@@ -136,14 +135,15 @@ class PretrainingModel(object):
       # new
       utils.log(d)
       utils.log(d["input_ids"])
-      utils.log(d["masked_lm_ids"])
       utils.log(d["input_ids"].eval())
+      utils.log(d["masked_lm_ids"])
       utils.log(tf.reshape(d["masked_lm_ids"], [-1]))
       utils.log(tf.metrics.accuracy(
           labels=tf.reshape(d["masked_lm_ids"], [-1]),
           predictions=tf.reshape(d["masked_lm_preds"], [-1]),
           weights=tf.reshape(d["masked_lm_weights"], [-1])))
       # metrics["input_ids"] = d["input_ids"]
+      # tf.Print(d["input_ids"], list(d["input_ids"]))
       #
       metrics["masked_lm_accuracy"] = tf.metrics.accuracy(
           labels=tf.reshape(d["masked_lm_ids"], [-1]),
@@ -253,6 +253,113 @@ class PretrainingModel(object):
         "inputs", "is_fake_tokens", "sampled_tokens"])
     return FakedData(inputs=updated_inputs, is_fake_tokens=labels,
                      sampled_tokens=sampled_tokens)
+
+  # def _get_cloze_outputs(self, inputs: pretrain_data.Inputs, model):
+  #   """Cloze model softmax layer."""
+  #   weights = tf.cast(pretrain_helpers.get_candidates_mask(
+  #       self._config, inputs), tf.float32)
+  #   with tf.variable_scope("cloze_predictions"):
+  #     logits = get_token_logits(model.get_sequence_output(),
+  #                               model.get_embedding_table(), self._bert_config)
+  #     return get_softmax_output(logits, inputs.input_ids, weights,
+  #                               self._bert_config.vocab_size)
+
+
+def get_token_logits(input_reprs, embedding_table, bert_config):
+  hidden = tf.layers.dense(
+      input_reprs,
+      units=modeling.get_shape_list(embedding_table)[-1],
+      activation=modeling.get_activation(bert_config.hidden_act),
+      kernel_initializer=modeling.create_initializer(
+          bert_config.initializer_range))
+  hidden = modeling.layer_norm(hidden)
+  output_bias = tf.get_variable(
+      "output_bias",
+      shape=[bert_config.vocab_size],
+      initializer=tf.zeros_initializer())
+  logits = tf.matmul(hidden, embedding_table, transpose_b=True)
+  logits = tf.nn.bias_add(logits, output_bias)
+  return logits
+
+
+def get_softmax_output(logits, targets, weights, vocab_size):
+  oh_labels = tf.one_hot(targets, depth=vocab_size, dtype=tf.float32)
+  preds = tf.argmax(logits, axis=-1, output_type=tf.int32)
+  probs = tf.nn.softmax(logits)
+  log_probs = tf.nn.log_softmax(logits)
+  label_log_probs = -tf.reduce_sum(log_probs * oh_labels, axis=-1)
+  numerator = tf.reduce_sum(weights * label_log_probs)
+  denominator = tf.reduce_sum(weights) + 1e-6
+  loss = numerator / denominator
+  SoftmaxOutput = collections.namedtuple(
+      "SoftmaxOutput", ["logits", "probs", "loss", "per_example_loss", "preds",
+                        "weights"])
+  return SoftmaxOutput(
+      logits=logits, probs=probs, per_example_loss=label_log_probs,
+      loss=loss, preds=preds, weights=weights)
+
+
+# class TwoTowerClozeTransformer(object):
+#   """Build a two-tower Transformer used as Electric's generator."""
+
+#   def __init__(self, config, bert_config, inputs: pretrain_data.Inputs,
+#                is_training, embedding_size):
+#     ltr = build_transformer(
+#         config, inputs, is_training, bert_config,
+#         untied_embeddings=config.untied_generator_embeddings,
+#         embedding_size=(None if config.untied_generator_embeddings
+#                         else embedding_size),
+#         scope="generator_ltr", ltr=True)
+#     rtl = build_transformer(
+#         config, inputs, is_training, bert_config,
+#         untied_embeddings=config.untied_generator_embeddings,
+#         embedding_size=(None if config.untied_generator_embeddings
+#                         else embedding_size),
+#         scope="generator_rtl", rtl=True)
+#     ltr_reprs = ltr.get_sequence_output()
+#     rtl_reprs = rtl.get_sequence_output()
+#     self._sequence_output = tf.concat([roll(ltr_reprs, -1),
+#                                        roll(rtl_reprs, 1)], -1)
+#     self._embedding_table = ltr.embedding_table
+
+#   def get_sequence_output(self):
+#     return self._sequence_output
+
+#   def get_embedding_table(self):
+#     return self._embedding_table
+
+
+def build_transformer(config: configure_pretraining.PretrainingConfig,
+                      inputs: pretrain_data.Inputs, is_training,
+                      bert_config, reuse=False, **kwargs):
+  """Build a transformer encoder network."""
+  with tf.variable_scope(tf.get_variable_scope(), reuse=reuse):
+    return modeling.BertModel(
+        bert_config=bert_config,
+        is_training=is_training,
+        input_ids=inputs.input_ids,
+        input_mask=inputs.input_mask,
+        token_type_ids=inputs.segment_ids,
+        use_one_hot_embeddings=config.use_tpu,
+        **kwargs)
+
+
+def roll(arr, direction):
+  """Shifts embeddings in a [batch, seq_len, dim] tensor to the right/left."""
+  return tf.concat([arr[:, direction:, :], arr[:, :direction, :]], axis=1)
+
+
+def get_generator_config(config: configure_pretraining.PretrainingConfig,
+                         bert_config: modeling.BertConfig):
+  """Get model config for the generator network."""
+  gen_config = modeling.BertConfig.from_dict(bert_config.to_dict())
+  gen_config.hidden_size = int(round(
+      bert_config.hidden_size * config.generator_hidden_size))
+  gen_config.num_hidden_layers = int(round(
+      bert_config.num_hidden_layers * config.generator_layers))
+  gen_config.intermediate_size = 4 * gen_config.hidden_size
+  gen_config.num_attention_heads = max(1, gen_config.hidden_size // 64)
+  return gen_config
 
 
 def model_fn_builder(config: configure_pretraining.PretrainingConfig):
@@ -375,114 +482,3 @@ def main():
 
 if __name__ == "__main__":
   main()
-
-
-
-
-
-
-def get_token_logits(input_reprs, embedding_table, bert_config):
-  hidden = tf.layers.dense(
-      input_reprs,
-      units=modeling.get_shape_list(embedding_table)[-1],
-      activation=modeling.get_activation(bert_config.hidden_act),
-      kernel_initializer=modeling.create_initializer(
-          bert_config.initializer_range))
-  hidden = modeling.layer_norm(hidden)
-  output_bias = tf.get_variable(
-      "output_bias",
-      shape=[bert_config.vocab_size],
-      initializer=tf.zeros_initializer())
-  logits = tf.matmul(hidden, embedding_table, transpose_b=True)
-  logits = tf.nn.bias_add(logits, output_bias)
-  return logits
-
-
-def get_softmax_output(logits, targets, weights, vocab_size):
-  oh_labels = tf.one_hot(targets, depth=vocab_size, dtype=tf.float32)
-  preds = tf.argmax(logits, axis=-1, output_type=tf.int32)
-  probs = tf.nn.softmax(logits)
-  log_probs = tf.nn.log_softmax(logits)
-  label_log_probs = -tf.reduce_sum(log_probs * oh_labels, axis=-1)
-  numerator = tf.reduce_sum(weights * label_log_probs)
-  denominator = tf.reduce_sum(weights) + 1e-6
-  loss = numerator / denominator
-  SoftmaxOutput = collections.namedtuple(
-      "SoftmaxOutput", ["logits", "probs", "loss", "per_example_loss", "preds",
-                        "weights"])
-  return SoftmaxOutput(
-      logits=logits, probs=probs, per_example_loss=label_log_probs,
-      loss=loss, preds=preds, weights=weights)
-
-  # def _get_cloze_outputs(self, inputs: pretrain_data.Inputs, model):
-  #   """Cloze model softmax layer."""
-  #   weights = tf.cast(pretrain_helpers.get_candidates_mask(
-  #       self._config, inputs), tf.float32)
-  #   with tf.variable_scope("cloze_predictions"):
-  #     logits = get_token_logits(model.get_sequence_output(),
-  #                               model.get_embedding_table(), self._bert_config)
-  #     return get_softmax_output(logits, inputs.input_ids, weights,
-  #                               self._bert_config.vocab_size)
-
-
-# class TwoTowerClozeTransformer(object):
-#   """Build a two-tower Transformer used as Electric's generator."""
-
-#   def __init__(self, config, bert_config, inputs: pretrain_data.Inputs,
-#                is_training, embedding_size):
-#     ltr = build_transformer(
-#         config, inputs, is_training, bert_config,
-#         untied_embeddings=config.untied_generator_embeddings,
-#         embedding_size=(None if config.untied_generator_embeddings
-#                         else embedding_size),
-#         scope="generator_ltr", ltr=True)
-#     rtl = build_transformer(
-#         config, inputs, is_training, bert_config,
-#         untied_embeddings=config.untied_generator_embeddings,
-#         embedding_size=(None if config.untied_generator_embeddings
-#                         else embedding_size),
-#         scope="generator_rtl", rtl=True)
-#     ltr_reprs = ltr.get_sequence_output()
-#     rtl_reprs = rtl.get_sequence_output()
-#     self._sequence_output = tf.concat([roll(ltr_reprs, -1),
-#                                        roll(rtl_reprs, 1)], -1)
-#     self._embedding_table = ltr.embedding_table
-
-#   def get_sequence_output(self):
-#     return self._sequence_output
-
-#   def get_embedding_table(self):
-#     return self._embedding_table
-
-
-def build_transformer(config: configure_pretraining.PretrainingConfig,
-                      inputs: pretrain_data.Inputs, is_training,
-                      bert_config, reuse=False, **kwargs):
-  """Build a transformer encoder network."""
-  with tf.variable_scope(tf.get_variable_scope(), reuse=reuse):
-    return modeling.BertModel(
-        bert_config=bert_config,
-        is_training=is_training,
-        input_ids=inputs.input_ids,
-        input_mask=inputs.input_mask,
-        token_type_ids=inputs.segment_ids,
-        use_one_hot_embeddings=config.use_tpu,
-        **kwargs)
-
-
-def roll(arr, direction):
-  """Shifts embeddings in a [batch, seq_len, dim] tensor to the right/left."""
-  return tf.concat([arr[:, direction:, :], arr[:, :direction, :]], axis=1)
-
-
-def get_generator_config(config: configure_pretraining.PretrainingConfig,
-                         bert_config: modeling.BertConfig):
-  """Get model config for the generator network."""
-  gen_config = modeling.BertConfig.from_dict(bert_config.to_dict())
-  gen_config.hidden_size = int(round(
-      bert_config.hidden_size * config.generator_hidden_size))
-  gen_config.num_hidden_layers = int(round(
-      bert_config.num_hidden_layers * config.generator_layers))
-  gen_config.intermediate_size = 4 * gen_config.hidden_size
-  gen_config.num_attention_heads = max(1, gen_config.hidden_size // 64)
-  return gen_config
