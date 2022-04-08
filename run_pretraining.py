@@ -141,6 +141,7 @@ class PretrainingModel(object):
           predictions=tf.reshape(d["masked_lm_preds"], [-1]),
           weights=tf.reshape(d["masked_lm_weights"], [-1])))
       # metrics["input_ids"] = d["input_ids"]
+      tf.Print(d["input_ids"])
       #
       metrics["masked_lm_accuracy"] = tf.metrics.accuracy(
           labels=tf.reshape(d["masked_lm_ids"], [-1]),
