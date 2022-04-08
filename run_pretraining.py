@@ -171,9 +171,9 @@ class PretrainingModel(object):
       self.masked_lm_positions = tf.identity(masked_inputs.masked_lm_positions)
       utils.log(self.masked_lm_positions)
 
-      utils.log(fake_data.inputs)
+      utils.log(fake_data.inputs.input_ids)
       self.updated_fake_inputs = tf.get_variable("updated_fake_inputs", shape=[1, 512], initializer=tf.zeros_initializer())
-      self.updated_fake_inputs = tf.identity(fake_data.inputs)
+      self.updated_fake_inputs = tf.identity(fake_data.inputs.input_ids)
       utils.log(self.updated_fake_inputs)
 
       utils.log(fake_data.is_fake_tokens)
