@@ -40,21 +40,21 @@ from tensorflow.python.ops import math_ops
 from tensorflow.python.ops import state_ops
 from tensorflow.python.ops.metrics_impl import _aggregate_across_replicas, metric_variable
 
-def cringe(values):
-  with variable_scope.variable_scope(None, 'cringe', (values)):
-    values = math_ops.cast(values, dtypes.float32)
+# def cringe(values):
+#   with variable_scope.variable_scope(None, 'cringe', (values)):
+#     values = math_ops.cast(values, dtypes.float32)
 
-    orig_tens = metric_variable([], dtypes.float32, name='total')
+#     orig_tens = metric_variable([], dtypes.float32, name='total')
 
-    update_total_op = state_ops.assign_add(orig_tens, values)
+#     update_total_op = state_ops.assign_add(orig_tens, values)
 
-    def compute_identity(_, t):
-      return math_ops.scalar_mul(1, t, name='value')
+#     def compute_identity(_, t):
+#       return math_ops.scalar_mul(1, t, name='value')
 
-    identity_t = _aggregate_across_replicas(None, compute_identity, orig_tens)
-    update_op = math_ops.scalar_mul(1, update_total_op, name='update_op')
+#     identity_t = _aggregate_across_replicas(None, compute_identity, orig_tens)
+#     update_op = math_ops.scalar_mul(1, update_total_op, name='update_op')
 
-    return identity_t, update_op
+#     return identity_t, update_op
 
 
 class PretrainingModel(object):
@@ -129,6 +129,26 @@ class PretrainingModel(object):
           fake_data.inputs, discriminator, fake_data.is_fake_tokens,
           cloze_output)
       self.total_loss += config.disc_weight * disc_output.loss
+    
+    ###
+    print_tensors = dict()
+    print_tensors["input_ids"] = masked_inputs.input_ids
+    print_tensors["masked_lm_preds"] = mlm_output.preds
+    print_tensors["mlm_loss"] = mlm_output.per_example_loss
+    print_tensors["masked_lm_ids"] = masked_inputs.masked_lm_ids
+    print_tensors["masked_lm_weights"] = masked_inputs.masked_lm_weights
+    print_tensors["input_mask"] = masked_inputs.input_mask
+    print_tensors["masked_lm_positions"] = masked_inputs.masked_lm_positions
+    if config.electra_objective:
+      print_tensors["updated_fake_inputs"] = fake_data.inputs
+      print_tensors["is_fake_tokens"] = fake_data.is_fake_tokens
+      print_tensors["fake_sampled_tokens"] = fake_data.sampled_tokens
+      print_tensors["disc_labels"] = disc_output.labels
+      print_tensors["disc_preds"] = disc_output.preds
+      print_tensors["sampled_tokids"] = tf.argmax(fake_data.sampled_tokens, -1, output_type=tf.int32)
+      print_tensors["disc_loss"] = disc_output.per_example_loss
+    self.print_tensors = print_tensors
+    ### 
 
     # Evaluation
     eval_fn_inputs = {
@@ -140,6 +160,7 @@ class PretrainingModel(object):
         "input_mask": masked_inputs.input_mask
     }
     if config.electra_objective or config.electric_objective:
+
       eval_fn_inputs.update({
           "disc_loss": disc_output.per_example_loss,
           "disc_labels": disc_output.labels,
@@ -151,26 +172,11 @@ class PretrainingModel(object):
     eval_fn_keys = eval_fn_inputs.keys()
     eval_fn_values = [eval_fn_inputs[k] for k in eval_fn_keys]
 
+
     def metric_fn(*args):
       """Computes the loss and accuracy of the model."""
       d = {k: arg for k, arg in zip(eval_fn_keys, args)}
       metrics = dict()
-      # new
-      utils.log(d["input_ids"])
-      # utils.log(cringe(d["input_ids"]))
-      metrics["dumb"] = cringe(d["input_ids"])
-      # node1 = tf.reshape(d["input_ids"], [-1])
-      # node1_print_output = tf.Print(node1, [node1])
-      # metrics["dumb"] = tf.metrics.mean(node1_print_output)
-      # utils.log(node1)
-      # utils.log(tf.Print(node1, [node1]))
-      # utils.log(tf.metrics.accuracy(
-      #     labels=tf.reshape(d["masked_lm_ids"], [-1]),
-      #     predictions=tf.reshape(d["masked_lm_preds"], [-1]),
-      #     weights=tf.reshape(d["masked_lm_weights"], [-1])))
-      # metrics["input_ids"] = d["input_ids"]
-      # tf.Print(d["input_ids"], list(d["input_ids"]))
-      #
       metrics["masked_lm_accuracy"] = tf.metrics.accuracy(
           labels=tf.reshape(d["masked_lm_ids"], [-1]),
           predictions=tf.reshape(d["masked_lm_preds"], [-1]),
@@ -414,6 +420,7 @@ def model_fn_builder(config: configure_pretraining.PretrainingConfig):
               config.use_tpu)]
       )
     elif mode == tf.estimator.ModeKeys.EVAL:
+      hook = tf.estimator.LoggingTensorHook(model.print_tensors, at_end=True)
       output_spec = tf.estimator.tpu.TPUEstimatorSpec(
           mode=mode,
           loss=model.total_loss,
@@ -421,7 +428,7 @@ def model_fn_builder(config: configure_pretraining.PretrainingConfig):
           evaluation_hooks=[training_utils.ETAHook(
               {} if config.use_tpu else dict(loss=model.total_loss),
               config.num_eval_steps, config.iterations_per_loop,
-              config.use_tpu, is_training=False)])
+              config.use_tpu, is_training=False), hook])
     else:
       raise ValueError("Only TRAIN and EVAL modes are supported")
     return output_spec
