@@ -136,6 +136,7 @@ class PretrainingModel(object):
     ###
     print_tensors = dict()
     utils.log(masked_inputs.input_ids)
+    tf.reset_default_graph()
     with tf.variable_scope("evals"):
       self.input_ids = tf.get_variable("input_ids", shape=[1, 512], initializer=tf.zeros_initializer())
       self.input_ids = tf.identity(masked_inputs.input_ids)
