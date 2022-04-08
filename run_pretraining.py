@@ -132,7 +132,7 @@ class PretrainingModel(object):
     
     ###
     print_tensors = dict()
-    print_tensors["input_ids"] = masked_inputs.input_ids
+    #b print_tensors["input_ids"] = masked_inputs.input_ids
     # print_tensors["masked_lm_preds"] = mlm_output.preds
     # print_tensors["mlm_loss"] = mlm_output.per_example_loss
     # print_tensors["masked_lm_ids"] = masked_inputs.masked_lm_ids
