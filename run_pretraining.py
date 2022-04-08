@@ -133,16 +133,15 @@ class PretrainingModel(object):
       d = {k: arg for k, arg in zip(eval_fn_keys, args)}
       metrics = dict()
       # new
-      utils.log(d)
       utils.log(d["input_ids"])
       node1 = tf.identity(d["input_ids"])
       tf.Print(node1, [node1])
-      utils.log(d["masked_lm_ids"])
-      utils.log(tf.reshape(d["masked_lm_ids"], [-1]))
-      utils.log(tf.metrics.accuracy(
-          labels=tf.reshape(d["masked_lm_ids"], [-1]),
-          predictions=tf.reshape(d["masked_lm_preds"], [-1]),
-          weights=tf.reshape(d["masked_lm_weights"], [-1])))
+      utils.log(node1)
+      utils.log(tf.Print(node1, [node1]))
+      # utils.log(tf.metrics.accuracy(
+      #     labels=tf.reshape(d["masked_lm_ids"], [-1]),
+      #     predictions=tf.reshape(d["masked_lm_preds"], [-1]),
+      #     weights=tf.reshape(d["masked_lm_weights"], [-1])))
       # metrics["input_ids"] = d["input_ids"]
       # tf.Print(d["input_ids"], list(d["input_ids"]))
       #
