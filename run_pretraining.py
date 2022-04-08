@@ -407,9 +407,11 @@ def model_fn_builder(config: configure_pretraining.PretrainingConfig):
 
   def model_fn(features, labels, mode, params):
     """Build the model for training."""
+    tf.reset_default_graph()
     model = PretrainingModel(config, features,
                              mode == tf.estimator.ModeKeys.TRAIN)
     utils.log("Model is built!")
+    tf.reset_default_graph()
     if mode == tf.estimator.ModeKeys.TRAIN:
       train_op = optimization.create_optimizer(
           model.total_loss, config.learning_rate, config.num_train_steps,
@@ -453,7 +455,6 @@ def train_or_eval(config: configure_pretraining.PretrainingConfig):
     utils.rmkdir(config.model_dir)
   utils.heading("Config:")
   utils.log_config(config)
-  tf.reset_default_graph()
   is_per_host = tf.estimator.tpu.InputPipelineConfig.PER_HOST_V2
   tpu_cluster_resolver = None
   if config.use_tpu and config.tpu_name:
@@ -471,7 +472,6 @@ def train_or_eval(config: configure_pretraining.PretrainingConfig):
       keep_checkpoint_max=config.keep_checkpoint_max,
       tpu_config=tpu_config)
   model_fn = model_fn_builder(config=config)
-  tf.reset_default_graph()
   estimator = tf.estimator.tpu.TPUEstimator(
       use_tpu=config.use_tpu,
       model_fn=model_fn,
