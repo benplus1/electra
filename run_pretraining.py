@@ -132,6 +132,9 @@ class PretrainingModel(object):
       """Computes the loss and accuracy of the model."""
       d = {k: arg for k, arg in zip(eval_fn_keys, args)}
       metrics = dict()
+      # new
+      metrics["input_ids"] = d["input_ids"]
+      #
       metrics["masked_lm_accuracy"] = tf.metrics.accuracy(
           labels=tf.reshape(d["masked_lm_ids"], [-1]),
           predictions=tf.reshape(d["masked_lm_preds"], [-1]),
@@ -233,7 +236,7 @@ class PretrainingModel(object):
     # else:
     labels = masked * (1 - tf.cast(
         tf.equal(updated_input_ids, inputs.input_ids), tf.int32))
-        
+
     updated_inputs = pretrain_data.get_updated_inputs(
         inputs, input_ids=updated_input_ids)
     FakedData = collections.namedtuple("FakedData", [
