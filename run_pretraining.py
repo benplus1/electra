@@ -33,7 +33,7 @@ from pretrain import pretrain_helpers
 from util import training_utils
 from util import utils
 
-tensorflow.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
+tf.logging.set_verbosity(tf.logging.INFO)
 
 
 # from tensorflow.compat.v1.metrics import _aggregate_across_replicas
