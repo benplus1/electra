@@ -127,6 +127,7 @@ class PretrainingModel(object):
       })
     eval_fn_keys = eval_fn_inputs.keys()
     eval_fn_values = [eval_fn_inputs[k] for k in eval_fn_keys]
+    utils.log(eval_fn_values)
 
     def metric_fn(*args):
       """Computes the loss and accuracy of the model."""
