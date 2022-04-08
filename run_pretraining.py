@@ -33,12 +33,15 @@ from pretrain import pretrain_helpers
 from util import training_utils
 from util import utils
 
+tensorflow.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
+
+
 # from tensorflow.compat.v1.metrics import _aggregate_across_replicas
-from tensorflow.python.framework import dtypes
-from tensorflow.python.ops import variable_scope
-from tensorflow.python.ops import math_ops
-from tensorflow.python.ops import state_ops
-from tensorflow.python.ops.metrics_impl import _aggregate_across_replicas, metric_variable
+# from tensorflow.python.framework import dtypes
+# from tensorflow.python.ops import variable_scope
+# from tensorflow.python.ops import math_ops
+# from tensorflow.python.ops import state_ops
+# from tensorflow.python.ops.metrics_impl import _aggregate_across_replicas, metric_variable
 
 # def cringe(values):
 #   with variable_scope.variable_scope(None, 'cringe', (values)):
@@ -132,7 +135,7 @@ class PretrainingModel(object):
     
     ###
     print_tensors = dict()
-    #b print_tensors["input_ids"] = masked_inputs.input_ids
+    print_tensors["input_ids"] = masked_inputs.input_ids
     # print_tensors["masked_lm_preds"] = mlm_output.preds
     # print_tensors["mlm_loss"] = mlm_output.per_example_loss
     # print_tensors["masked_lm_ids"] = masked_inputs.masked_lm_ids
@@ -421,7 +424,7 @@ def model_fn_builder(config: configure_pretraining.PretrainingConfig):
       )
     elif mode == tf.estimator.ModeKeys.EVAL:
       ## 
-      hook = tf.estimator.LoggingTensorHook(model.print_tensors, at_end=True)
+      hook = tf.estimator.LoggingTensorHook(model.print_tensors, every_n_iter=1)
       output_spec = tf.estimator.tpu.TPUEstimatorSpec(
           mode=mode,
           loss=model.total_loss,
