@@ -45,12 +45,8 @@ def cringe(values):
     values = math_ops.cast(values, dtypes.float32)
 
     orig_tens = metric_variable([], dtypes.float32, name='total')
-    # count = metric_variable([], dtypes.float32, name='count')
-    # num_values = math_ops.cast(array_ops.size(values), dtypes.float32)
 
-    update_total_op = state_ops.assign_add(orig_tens, math_ops.cast(values, dtypes.float32))
-    # with ops.control_dependencies([values]):
-    #   update_count_op = state_ops.assign_add(count, num_values)
+    update_total_op = state_ops.assign_add(orig_tens, values)
 
     def compute_identity(_, t):
       return math_ops.scalar_mul(1, t, name='value')
@@ -161,7 +157,8 @@ class PretrainingModel(object):
       metrics = dict()
       # new
       utils.log(d["input_ids"])
-      utils.log(cringe(d["input_ids"]))
+      # utils.log(cringe(d["input_ids"]))
+      metrics["dumb"] = cringe(d["input_ids"])
       # node1 = tf.reshape(d["input_ids"], [-1])
       # node1_print_output = tf.Print(node1, [node1])
       # metrics["dumb"] = tf.metrics.mean(node1_print_output)
