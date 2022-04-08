@@ -135,7 +135,8 @@ class PretrainingModel(object):
       # new
       utils.log(d)
       utils.log(d["input_ids"])
-      tf.print()
+      node1 = tf.identity(d["input_ids"])
+      tf.Print(node1, [node1])
       utils.log(d["masked_lm_ids"])
       utils.log(tf.reshape(d["masked_lm_ids"], [-1]))
       utils.log(tf.metrics.accuracy(
