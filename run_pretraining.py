@@ -134,28 +134,85 @@ class PretrainingModel(object):
       self.total_loss += config.disc_weight * disc_output.loss
     
     ###
-    print_tensors = dict()
-    utils.log(masked_inputs.input_ids)
+    # self.print_tensors = dict()
     with tf.variable_scope("evals"):
+      utils.log(masked_inputs.input_ids)
       self.input_ids = tf.get_variable("input_ids", shape=[1, 512], initializer=tf.zeros_initializer())
       self.input_ids = tf.identity(masked_inputs.input_ids)
       utils.log(self.input_ids)
-    # print_tensors["input_ids"] = masked_inputs.input_ids
-    # print_tensors["masked_lm_preds"] = mlm_output.preds
-    # print_tensors["mlm_loss"] = mlm_output.per_example_loss
-    # print_tensors["masked_lm_ids"] = masked_inputs.masked_lm_ids
-    # print_tensors["masked_lm_weights"] = masked_inputs.masked_lm_weights
-    # print_tensors["input_mask"] = masked_inputs.input_mask
-    # print_tensors["masked_lm_positions"] = masked_inputs.masked_lm_positions
-    if config.electra_objective:
-      print_tensors["updated_fake_inputs"] = fake_data.inputs
-      print_tensors["is_fake_tokens"] = fake_data.is_fake_tokens
-      # print_tensors["fake_sampled_tokens"] = fake_data.sampled_tokens
-      print_tensors["disc_labels"] = disc_output.labels
-      print_tensors["disc_preds"] = disc_output.preds
-      # print_tensors["sampled_tokids"] = tf.argmax(fake_data.sampled_tokens, -1, output_type=tf.int32)
-      print_tensors["disc_loss"] = disc_output.per_example_loss
-    self.print_tensors = print_tensors
+
+      utils.log(mlm_output.preds)
+      self.masked_lm_preds = tf.get_variable("masked_lm_preds", shape=[1, 512], initializer=tf.zeros_initializer())
+      self.masked_lm_preds = tf.identity(mlm_output.preds)
+      utils.log(self.masked_lm_preds)
+
+      utils.log(mlm_output.per_example_loss)
+      self.mlm_loss = tf.get_variable("mlm_loss", shape=[1, 512], initializer=tf.zeros_initializer())
+      self.mlm_loss = tf.identity(mlm_output.per_example_loss)
+      utils.log(self.mlm_loss)
+
+      utils.log(masked_inputs.masked_lm_ids)
+      self.masked_lm_ids = tf.get_variable("masked_lm_ids", shape=[1, 512], initializer=tf.zeros_initializer())
+      self.masked_lm_ids = tf.identity(masked_inputs.masked_lm_ids)
+      utils.log(self.masked_lm_ids)
+
+      utils.log(masked_inputs.masked_lm_weights)
+      self.masked_lm_weights = tf.get_variable("masked_lm_weights", shape=[1, 512], initializer=tf.zeros_initializer())
+      self.masked_lm_weights = tf.identity(masked_inputs.masked_lm_weights)
+      utils.log(self.masked_lm_weights)
+
+      utils.log(masked_inputs.input_mask)
+      self.input_mask = tf.get_variable("input_mask", shape=[1, 512], initializer=tf.zeros_initializer())
+      self.input_mask = tf.identity(masked_inputs.input_mask)
+      utils.log(self.input_mask)
+
+      utils.log(masked_inputs.masked_lm_positions)
+      self.masked_lm_positions = tf.get_variable("masked_lm_positions", shape=[1, 512], initializer=tf.zeros_initializer())
+      self.masked_lm_positions = tf.identity(masked_inputs.masked_lm_positions)
+      utils.log(self.masked_lm_positions)
+
+      utils.log(fake_data.inputs)
+      self.updated_fake_inputs = tf.get_variable("updated_fake_inputs", shape=[1, 512], initializer=tf.zeros_initializer())
+      self.updated_fake_inputs = tf.identity(fake_data.inputs)
+      utils.log(self.updated_fake_inputs)
+
+      utils.log(fake_data.is_fake_tokens)
+      self.is_fake_tokens = tf.get_variable("is_fake_tokens", shape=[1, 512], initializer=tf.zeros_initializer())
+      self.is_fake_tokens = tf.identity(fake_data.is_fake_tokens)
+      utils.log(self.is_fake_tokens)
+
+      utils.log(fake_data.sampled_tokens)
+      self.fake_sampled_tokens = tf.get_variable("fake_sampled_tokens", shape=[1, 512], initializer=tf.zeros_initializer())
+      self.fake_sampled_tokens = tf.identity(fake_data.sampled_tokens)
+      utils.log(self.fake_sampled_tokens)
+
+      utils.log(fake_data.sampled_tokens)
+      self.fake_sampled_tokens = tf.get_variable("fake_sampled_tokens", shape=[1, 512], initializer=tf.zeros_initializer())
+      self.fake_sampled_tokens = tf.identity(fake_data.sampled_tokens)
+      utils.log(self.fake_sampled_tokens)
+
+      if config.electra_objective:
+        utils.log(disc_output.labels)
+        self.disc_labels = tf.get_variable("disc_labels", shape=[1, 512], initializer=tf.zeros_initializer())
+        self.disc_labels = tf.identity(disc_output.labels)
+        utils.log(self.disc_labels)
+
+        utils.log(disc_output.preds)
+        self.disc_preds = tf.get_variable("disc_preds", shape=[1, 512], initializer=tf.zeros_initializer())
+        self.disc_preds = tf.identity(disc_output.preds)
+        utils.log(self.disc_preds)
+
+        utils.log(tf.argmax(fake_data.sampled_tokens, -1, output_type=tf.int32))
+        self.sampled_tokids = tf.get_variable("sampled_tokids", shape=[1, 512], initializer=tf.zeros_initializer())
+        self.sampled_tokids = tf.argmax(fake_data.sampled_tokens, -1, output_type=tf.int32)
+        utils.log(self.sampled_tokids)
+
+        utils.log(disc_output.per_example_loss)
+        self.disc_loss = tf.get_variable("disc_loss", shape=[1, 512], initializer=tf.zeros_initializer())
+        self.disc_loss = tf.identity(disc_output.per_example_loss)
+        utils.log(self.disc_loss)
+
+    # self.print_tensors = print_tensors
     ### 
 
     # Evaluation
