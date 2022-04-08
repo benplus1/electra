@@ -33,11 +33,12 @@ from pretrain import pretrain_helpers
 from util import training_utils
 from util import utils
 
-from tensorflow.compat.v1.metrics import _aggregate_across_replicas, metric_variable
+# from tensorflow.compat.v1.metrics import _aggregate_across_replicas
 from tensorflow.python.framework import dtypes
 from tensorflow.python.ops import variable_scope
 from tensorflow.python.ops import math_ops
 from tensorflow.python.ops import state_ops
+from tensorflow.python.ops.metrics_impl import _aggregate_across_replicas, metric_variable
 
 def cringe(values):
   with variable_scope.variable_scope(None, 'cringe', (values)):
