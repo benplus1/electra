@@ -33,7 +33,7 @@ from pretrain import pretrain_helpers
 from util import training_utils
 from util import utils
 
-from tf.metrics import _aggregate_across_replicas, metric_variable
+from tensorflow.compat.v1.metrics import _aggregate_across_replicas, metric_variable
 from tensorflow.python.framework import dtypes
 from tensorflow.python.ops import variable_scope
 from tensorflow.python.ops import math_ops
