@@ -137,7 +137,8 @@ class PretrainingModel(object):
     print_tensors = dict()
     utils.log(masked_inputs.input_ids)
     with tf.variable_scope("evals"):
-      self.var = tf.Variable(tf.identity(masked_inputs.input_ids))
+      input_ids = lambda: tf.identity(masked_inputs.input_ids)
+      self.var = tf.Variable(input_ids)
       utils.log(self.var)
     # print_tensors["input_ids"] = masked_inputs.input_ids
     # print_tensors["masked_lm_preds"] = mlm_output.preds
