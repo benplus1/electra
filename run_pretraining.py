@@ -186,11 +186,6 @@ class PretrainingModel(object):
       self.fake_sampled_tokens = tf.identity(fake_data.sampled_tokens)
       utils.log(self.fake_sampled_tokens)
 
-      utils.log(fake_data.sampled_tokens)
-      self.fake_sampled_tokens = tf.get_variable("fake_sampled_tokens", shape=[1, 512], initializer=tf.zeros_initializer())
-      self.fake_sampled_tokens = tf.identity(fake_data.sampled_tokens)
-      utils.log(self.fake_sampled_tokens)
-
       if config.electra_objective:
         utils.log(disc_output.labels)
         self.disc_labels = tf.get_variable("disc_labels", shape=[1, 512], initializer=tf.zeros_initializer())
