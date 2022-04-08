@@ -133,6 +133,7 @@ class PretrainingModel(object):
       d = {k: arg for k, arg in zip(eval_fn_keys, args)}
       metrics = dict()
       # new
+      utils.log(d)
       utils.log(d["input_ids"])
       utils.log(d["masked_lm_ids"])
       utils.log(tf.reshape(d["masked_lm_ids"], [-1]))
