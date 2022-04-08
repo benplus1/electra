@@ -133,7 +133,7 @@ class PretrainingModel(object):
       d = {k: arg for k, arg in zip(eval_fn_keys, args)}
       metrics = dict()
       # new
-      metrics["input_ids"] = d["input_ids"]
+      # metrics["input_ids"] = d["input_ids"]
       #
       metrics["masked_lm_accuracy"] = tf.metrics.accuracy(
           labels=tf.reshape(d["masked_lm_ids"], [-1]),
@@ -435,6 +435,7 @@ def train_or_eval(config: configure_pretraining.PretrainingConfig):
     result = estimator.evaluate(
         input_fn=pretrain_data.get_input_fn(config, False),
         steps=config.num_eval_steps)
+    utils.log("Printing")
     for key in sorted(result.keys()):
       utils.log("  {:} = {:}".format(key, str(result[key])))
     return result
