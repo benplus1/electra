@@ -142,10 +142,10 @@ class PretrainingModel(object):
     if config.electra_objective:
       print_tensors["updated_fake_inputs"] = fake_data.inputs
       print_tensors["is_fake_tokens"] = fake_data.is_fake_tokens
-      print_tensors["fake_sampled_tokens"] = fake_data.sampled_tokens
+      # print_tensors["fake_sampled_tokens"] = fake_data.sampled_tokens
       print_tensors["disc_labels"] = disc_output.labels
       print_tensors["disc_preds"] = disc_output.preds
-      print_tensors["sampled_tokids"] = tf.argmax(fake_data.sampled_tokens, -1, output_type=tf.int32)
+      # print_tensors["sampled_tokids"] = tf.argmax(fake_data.sampled_tokens, -1, output_type=tf.int32)
       print_tensors["disc_loss"] = disc_output.per_example_loss
     self.print_tensors = print_tensors
     ### 
