@@ -484,6 +484,7 @@ def train_or_eval(config: configure_pretraining.PretrainingConfig):
         input_fn=pretrain_data.get_input_fn(config, False),
         steps=config.num_eval_steps)
     utils.log("Printing")
+    utils.log(estimator.get_variable_names())
     out = estimator.get_variable_value("StopGradient_1:0")
     utils.log(type(out))
     utils.log(out)
