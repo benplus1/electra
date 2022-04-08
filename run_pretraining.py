@@ -407,11 +407,9 @@ def model_fn_builder(config: configure_pretraining.PretrainingConfig):
 
   def model_fn(features, labels, mode, params):
     """Build the model for training."""
-    tf.reset_default_graph()
     model = PretrainingModel(config, features,
                              mode == tf.estimator.ModeKeys.TRAIN)
     utils.log("Model is built!")
-    tf.reset_default_graph()
     if mode == tf.estimator.ModeKeys.TRAIN:
       train_op = optimization.create_optimizer(
           model.total_loss, config.learning_rate, config.num_train_steps,
@@ -443,7 +441,7 @@ def model_fn_builder(config: configure_pretraining.PretrainingConfig):
     else:
       raise ValueError("Only TRAIN and EVAL modes are supported")
     return output_spec
-
+  tf.reset_default_graph()
   return model_fn
 
 
