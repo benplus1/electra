@@ -42,11 +42,11 @@ class PretrainingModel(object):
     # Set up model config
     self._config = config
     self._bert_config = training_utils.get_bert_config(config)
-    if config.debug:
-      self._bert_config.num_hidden_layers = 3
-      self._bert_config.hidden_size = 144
-      self._bert_config.intermediate_size = 144 * 4
-      self._bert_config.num_attention_heads = 4
+    # if config.debug:
+    #   self._bert_config.num_hidden_layers = 3
+    #   self._bert_config.hidden_size = 144
+    #   self._bert_config.intermediate_size = 144 * 4
+    #   self._bert_config.num_attention_heads = 4
 
     # Mask the input
     unmasked_inputs = pretrain_data.features_to_inputs(features)
@@ -135,7 +135,7 @@ class PretrainingModel(object):
       # new
       utils.log(d)
       utils.log(d["input_ids"])
-      utils.log(d["input_ids"].eval())
+      tf.print()
       utils.log(d["masked_lm_ids"])
       utils.log(tf.reshape(d["masked_lm_ids"], [-1]))
       utils.log(tf.metrics.accuracy(
