@@ -135,7 +135,8 @@ class PretrainingModel(object):
     
     ###
     print_tensors = dict()
-    print_tensors["input_ids"] = masked_inputs.input_ids
+    utils.log(masked_inputs.input_ids)
+    #print_tensors["input_ids"] = masked_inputs.input_ids
     # print_tensors["masked_lm_preds"] = mlm_output.preds
     # print_tensors["mlm_loss"] = mlm_output.per_example_loss
     # print_tensors["masked_lm_ids"] = masked_inputs.masked_lm_ids
@@ -483,6 +484,7 @@ def train_or_eval(config: configure_pretraining.PretrainingConfig):
         input_fn=pretrain_data.get_input_fn(config, False),
         steps=config.num_eval_steps)
     utils.log("Printing")
+    out = estimator.get_variable_value("")
     for key in sorted(result.keys()):
       utils.log("  {:} = {:}".format(key, str(result[key])))
     return result
