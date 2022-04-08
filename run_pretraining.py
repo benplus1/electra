@@ -136,7 +136,6 @@ class PretrainingModel(object):
     ###
     print_tensors = dict()
     utils.log(masked_inputs.input_ids)
-    tf.reset_default_graph()
     with tf.variable_scope("evals"):
       self.input_ids = tf.get_variable("input_ids", shape=[1, 512], initializer=tf.zeros_initializer())
       self.input_ids = tf.identity(masked_inputs.input_ids)
@@ -454,7 +453,7 @@ def train_or_eval(config: configure_pretraining.PretrainingConfig):
     utils.rmkdir(config.model_dir)
   utils.heading("Config:")
   utils.log_config(config)
-
+  tf.reset_default_graph()
   is_per_host = tf.estimator.tpu.InputPipelineConfig.PER_HOST_V2
   tpu_cluster_resolver = None
   if config.use_tpu and config.tpu_name:
@@ -472,6 +471,7 @@ def train_or_eval(config: configure_pretraining.PretrainingConfig):
       keep_checkpoint_max=config.keep_checkpoint_max,
       tpu_config=tpu_config)
   model_fn = model_fn_builder(config=config)
+  tf.reset_default_graph()
   estimator = tf.estimator.tpu.TPUEstimator(
       use_tpu=config.use_tpu,
       model_fn=model_fn,
