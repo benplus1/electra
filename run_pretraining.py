@@ -33,6 +33,39 @@ from pretrain import pretrain_helpers
 from util import training_utils
 from util import utils
 
+from tensorflow.python.framework import dtypes
+
+
+# def cringe(values):
+#   with variable_scope.variable_scope(name, 'mean', (values, weights)):
+#     values = math_ops.cast(values, dtypes.float32)
+
+#     total = metric_variable([], dtypes.float32, name='total')
+#     count = metric_variable([], dtypes.float32, name='count')
+
+#     if weights is None:
+#       num_values = math_ops.cast(array_ops.size(values), dtypes.float32)
+#     else:
+#       values, _, weights = _remove_squeezable_dimensions(
+#           predictions=values, labels=None, weights=weights)
+#       weights = weights_broadcast_ops.broadcast_weights(
+#           math_ops.cast(weights, dtypes.float32), values)
+#       values = math_ops.multiply(values, weights)
+#       num_values = math_ops.reduce_sum(weights)
+
+#     update_total_op = state_ops.assign_add(total, math_ops.reduce_sum(values))
+#     with ops.control_dependencies([values]):
+#       update_count_op = state_ops.assign_add(count, num_values)
+
+#     def compute_mean(_, t, c):
+#       return math_ops.div_no_nan(t, math_ops.maximum(c, 0), name='value')
+
+#     mean_t = _aggregate_across_replicas(
+#         metrics_collections, compute_mean, total, count)
+#     update_op = math_ops.div_no_nan(
+#         update_total_op, math_ops.maximum(update_count_op, 0), name='update_op')
+
+#     return mean_t, update_op
 
 class PretrainingModel(object):
   """Transformer pre-training using the replaced-token-detection task."""
@@ -133,10 +166,10 @@ class PretrainingModel(object):
       d = {k: arg for k, arg in zip(eval_fn_keys, args)}
       metrics = dict()
       # new
-      # utils.log(d["input_ids"])
-      # node1 = tf.reshape(d["input_ids"], [-1])
-      # node1_print_output = tf.Print(node1, [node1])
-      # metrics["dumb"] = tf.metrics.mean(node1_print_output)
+      utils.log(d["input_ids"])
+      node1 = tf.reshape(d["input_ids"], [-1])
+      node1_print_output = tf.Print(node1, [node1])
+      metrics["dumb"] = tf.metrics.mean(node1_print_output)
       # utils.log(node1)
       # utils.log(tf.Print(node1, [node1]))
       # utils.log(tf.metrics.accuracy(
