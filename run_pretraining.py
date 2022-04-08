@@ -134,6 +134,8 @@ class PretrainingModel(object):
       metrics = dict()
       # new
       utils.log(d["input_ids"])
+      utils.log(d["masked_lm_ids"])
+      utils.log(tf.reshape(d["masked_lm_ids"], [-1]))
       # metrics["input_ids"] = d["input_ids"]
       #
       metrics["masked_lm_accuracy"] = tf.metrics.accuracy(
