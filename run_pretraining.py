@@ -133,10 +133,10 @@ class PretrainingModel(object):
       d = {k: arg for k, arg in zip(eval_fn_keys, args)}
       metrics = dict()
       # new
-      utils.log(d["input_ids"])
-      node1 = tf.reshape(d["input_ids"], [-1])
-      node1_print_output = tf.Print(node1, [node1])
-      metrics["dumb"] = tf.metrics.mean(node1_print_output)
+      # utils.log(d["input_ids"])
+      # node1 = tf.reshape(d["input_ids"], [-1])
+      # node1_print_output = tf.Print(node1, [node1])
+      # metrics["dumb"] = tf.metrics.mean(node1_print_output)
       # utils.log(node1)
       # utils.log(tf.Print(node1, [node1]))
       # utils.log(tf.metrics.accuracy(
