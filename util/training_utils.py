@@ -99,11 +99,11 @@ def secs_to_str(secs):
 def get_bert_config(config):
   """Get model hyperparameters based on a pretraining/finetuning config"""
   if config.model_size == "large":
-    args = {"hidden_size": 1024, "num_hidden_layers": 24}
+    args = {"hidden_size": 1024, "num_hidden_layers": 6}
   elif config.model_size == "base":
-    args = {"hidden_size": 768, "num_hidden_layers": 12}
+    args = {"hidden_size": 768, "num_hidden_layers": 6}
   elif config.model_size == "small":
-    args = {"hidden_size": 256, "num_hidden_layers": 12}
+    args = {"hidden_size": 256, "num_hidden_layers": 6}
   else:
     raise ValueError("Unknown model size", config.model_size)
   args["vocab_size"] = config.vocab_size
